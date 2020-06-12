@@ -31,21 +31,25 @@ class DBExecutor:
         self.warehouse=warehouse
         self.role=role
         self.timezone=timezone
-    
-    def validate_connection(self):
-        engine = create_engine(
+        self.connect()
+
+
+    def connect(self):
+        self.engine = create_engine(
             'snowflake://{user}:{password}@{account}/'.format(
                 user=self.user,
                 password=self.password,
                 account=self.account
             )
         )
+        
+        self.connection = self.engine.connect()
+    
+    def close(self):
+        self.connection.close()
+        self.engine.dispose()
+    
+    def validate_connection(self):
         results = None
-        try:
-            connection = engine.connect()
-            results = connection.execute('select current_version()').fetchone()
-            print(results[0])
-            return results
-        finally:
-            connection.close()
-            engine.dispose()
+        results = self.connection.execute('select current_version()').fetchone()
+        return results

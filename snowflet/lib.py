@@ -46,4 +46,4 @@ def default_timezone():
     """
     Returns TIMEZONE if env is set
     """
-    return os.environ.get('TIMEZONE', '')    
+    return os.environ.get('TIMEZONE', ' europe/london')    
