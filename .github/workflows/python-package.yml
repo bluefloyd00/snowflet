@@ -46,8 +46,8 @@ jobs:
         ACCOUNT: gs22761.west-europe.azure
         USER: SIMONEFIORENTINI
         PASSWORD: ${{ secrets.PASSWORD }}
-        # DATABASE: SNOWFLAKE_SAMPLE_DATA
-        # SCHEMA: TPCH_SF10
-        # WAREHOUSE: 
-        # ROLE: PUBLIC
-        # TIMEZONE: europe/london
+        DATABASE: SNOWFLAKE_SAMPLE_DATA
+        SCHEMA: TPCH_SF10
+        WAREHOUSE: 
+        ROLE: PUBLIC
+        TIMEZONE: europe/london
