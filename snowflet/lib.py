@@ -1,4 +1,8 @@
 import os
+import logging
+
+def logging_config():
+    logging.basicConfig(level=logging.INFO)
 
 def default_account():
     """
