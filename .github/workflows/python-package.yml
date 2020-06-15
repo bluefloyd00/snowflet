@@ -44,8 +44,6 @@ jobs:
         WAREHOUSE: 
         ROLE: PUBLIC
         TIMEZONE: europe/london
-
-  statistics
     - name: Test with pytest
       run: |
         pytest
