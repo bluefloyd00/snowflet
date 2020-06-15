@@ -30,15 +30,6 @@ jobs:
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
     - name: Set python path
-      run: echo "::add-path::home/runner/work/snowflet"
-
-    # - name: Set python path1
-    #   run: echo "::add-path::home/runner/work/snowflet"
-
-    # - name: Set python path2
-    #   run: echo "::set-env name=PYTHONPATH::home/runner/work/snowflet"
-
-    - name: Set python path3
       run: echo "::set-env name=PYTHONPATH::/home/runner/work/snowflet/snowflet"
       
     - name: Lint with flake8
