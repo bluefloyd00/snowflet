@@ -51,3 +51,5 @@ jobs:
         WAREHOUSE: 
         ROLE: PUBLIC
         TIMEZONE: europe/london
+        PROJECT_ROOT: /home/runner/work/snowflet/snowflet
+        

@@ -25,6 +25,5 @@ class DBExecutorValidateConnection(unittest.TestCase):
         )
 
 if __name__ == "__main__":
-    print("start testing")
     logging_config()
     unittest.main()

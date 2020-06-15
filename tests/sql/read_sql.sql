@@ -1,0 +1,1 @@
+select {param1}, {param3} from "db_test"."schema_test"."table1" where amount > {param2}

@@ -53,3 +53,15 @@ class DBExecutor:
         results = None
         results = self.connection.execute('select current_version()').fetchone()
         return results
+
+    def check_connection_args(self, database, schema ):
+        if database != self.database or schema!= self.schema:
+            self.database=database
+            self.schema=schema
+            self.connect()
+    
+    def run_query(self,  file_query="", query="", database=default_database(), schema=default_schema()):
+        self.check_connection_args(database, schema)
+        if file_query != "":
+
+            
