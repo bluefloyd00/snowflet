@@ -39,7 +39,7 @@ jobs:
     #   run: echo "::set-env name=PYTHONPATH::home/runner/work/snowflet"
 
     - name: Set python path3
-      run: echo "::set-env name=PYTHONPATH::home/runner/work/"
+      run: echo "::set-env name=PYTHONPATH::/home/runner/work/snowflet/snowflet"
       
     - name: Lint with flake8
       run: |
