@@ -1,5 +1,6 @@
 from snowflake.sqlalchemy import URL
 from sqlalchemy import create_engine   
+from snowflet.lib import read_sql
 from snowflet.lib import default_user
 from snowflet.lib import default_role
 from snowflet.lib import default_schema
@@ -60,8 +61,13 @@ class DBExecutor:
             self.schema=schema
             self.connect()
     
-    def run_query(self,  file_query="", query="", database=default_database(), schema=default_schema()):
-        self.check_connection_args(database, schema)
-        if file_query != "":
-
+    def exec_query(self,  file_query="", query="", database=default_database(), schema=default_schema(), *args, **kwargs):
+        sql = read_sql(file_query, query, **kwargs)
+        try:
+            result = self.connection.execute(sql)
+        except:
+            self.close()
+        
+        return result
             
+        
