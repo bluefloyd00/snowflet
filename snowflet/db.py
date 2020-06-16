@@ -1,3 +1,5 @@
+import numpy as np
+import pandas as pd
 from snowflake.sqlalchemy import URL
 from sqlalchemy import create_engine   
 from snowflet.lib import read_sql
@@ -61,13 +63,18 @@ class DBExecutor:
             self.schema=schema
             self.connect()
     
-    def exec_query(self,  file_query="", query="", database=default_database(), schema=default_schema(), *args, **kwargs):
+    def query_exec(self,  file_query="", query="", return_df=False, database=default_database(), schema=default_schema(), *args, **kwargs):
+        result = None
         sql = read_sql(file_query, query, **kwargs)
         try:
-            result = self.connection.execute(sql)
+            if return_df:
+                result = pd.read_sql_query(sql, self.engine)
+            else:
+                result = self.connection.execute(sql)
         except:
             self.close()
-        
+            raise Exception
         return result
+    
             
         

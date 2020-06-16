@@ -1,5 +1,16 @@
 import os
 import logging
+import pandas 
+from pandas._testing import assert_frame_equal
+
+
+def df_assert_equal(df1, df2):
+    sort_dataframe(df1)
+    sort_dataframe(df2)
+    assert_frame_equal(df1, df2, check_like=True)
+
+def sort_dataframe(df):
+    df = df.apply(lambda x: x.sort_values().values)
 
 def print_kwargs_params(func):
     def inner(*args, **kwargs):
