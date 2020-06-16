@@ -20,9 +20,11 @@ Why in Snowflet L comes before E? I really like the sound of Snoflet
 # *class* snowflet.db.DBExecutor() <br />
 Snowflake API wrapper <br />
 
-**validate_connection()** return the snowflake version
-**query_exec()** execute the sql query
-Parameters:
+**validate_connection()** <br /> 
+return the snowflake version <br />
+**query_exec()** <br />
+execute the sql query  <br />
+Parameters: <br />
 - file_query: path to the query file, either this or query shall be passed, can contain {parameters} 
 - query: sql query to be executed, can contain {parameters}  
 - return_df: Defaulted to False, passed True in case of SELECT query, it returns a pandas dataframe 
