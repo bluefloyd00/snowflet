@@ -1,5 +1,5 @@
 # Snowflake Extract Load Transorm framework  
-Why in Snowflet L comes before E? I really like the sound of Snoflet
+Why in Snowflet L comes before E? I really like the sound of Snowflet
 
 # env variable required
 ```
@@ -26,9 +26,9 @@ Parameters: <br />
 - **file_query**: path to the query file, either this or query shall be passed, can contain {parameters} 
 - **query**: sql query to be executed, can contain {parameters}  
 - **return_df**: Defaulted to False, passed True in case of SELECT query, it returns a pandas dataframe 
-- ****kwargs**: parameters in the sql are replaced with the corrispective kwargs value
+- ****kwargs**: parameters in the sql are replaced with the corrispective kwarg value
 ```
-    **example**:
+    """ example """
     newdb = db()
     newdb.query_exec(
             query="create database {db}",
