@@ -1,5 +1,81 @@
 import os
 import logging
+import pandas 
+from pandas._testing import assert_frame_equal
+
+
+def df_assert_equal(df1, df2):
+    sort_dataframe(df1)
+    sort_dataframe(df2)
+    assert_frame_equal(df1, df2, check_like=True)
+
+def sort_dataframe(df):
+    df = df.apply(lambda x: x.sort_values().values)
+
+def print_kwargs_params(func):
+    def inner(*args, **kwargs):
+        logging.info("Keyword args applied to the template:")
+        for key, value in kwargs.items():
+            if key in forbiden_kwargs():
+                raise KeyError("{} is a forbidden keyword argument.".format(key))
+        for key, value in kwargs.items():
+            logging.info("%s = %s" % (key, value))
+        return func(*args, **kwargs)
+    return inner
+
+def forbiden_kwargs():
+    return ['list_of_dedicated_keywords']
+
+
+class SafeDict(dict):
+    def __missing__(self, key):
+        return '{' + key + '}'
+
+@print_kwargs_params
+def read_sql(file='', query="", *args, **kwargs):
+    ''' Read SQL file and apply arguments/keywors arguments.
+
+    Args:
+        file (string): path to the SQL file from PROJECT_ROOT environment variable.
+        *kwargs can be passed if some parameters are to be passed.
+
+    Returns:
+        a SQL formated with **kwargs if applicable.
+
+    Example:
+        With SQL as:
+            "select .. {param2} .. {param1} .. {paramN}"
+        *kwargs as:
+            param1=value1
+            param2=value2
+            paranN=valueN
+        The functions returns:
+            "select .. value2 .. value1 .. valueN"
+    '''
+    if file == '' and query == '':
+        logging.info("Either File or query parameter shall be passed to the function")
+        raise Exception
+    
+    if query != '':
+        sql = query
+    else:
+        path_to_file = os.path.join(os.getenv("PROJECT_ROOT"), file)
+        file = open(path_to_file, 'r')
+        sql = file.read()
+        file.close()
+
+    if kwargs.get('dry_run_dataset_prefix', None) is not None:
+        for index, dataset in enumerate(sql.split("`")):
+            if index%2==1 and "." in dataset:
+                sql = sql.replace(
+                    "`" + sql.split("`")[index] + "`",
+                    "`" + str(kwargs.get('dry_run_dataset_prefix', None)) + "_" +  sql.split("`")[index] + "`",
+                    1
+                )
+
+    if len(kwargs) > 0:
+        sql = sql.format_map(SafeDict(**kwargs))
+    return sql
 
 def logging_config():
     logging.basicConfig(level=logging.INFO)
