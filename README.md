@@ -20,21 +20,19 @@ Why in Snowflet L comes before E? I really like the sound of Snoflet
 # *class* snowflet.db.DBExecutor() <br />
 Snowflake API wrapper <br />
 
-**validate_connection()** <br /> 
-return the snowflake version <br />
-**query_exec()** <br />
-execute the sql query  <br />
+**validate_connection()** return the snowflake version <br />
+**query_exec()** execute the sql query  <br />
 Parameters: <br />
-- file_query: path to the query file, either this or query shall be passed, can contain {parameters} 
-- query: sql query to be executed, can contain {parameters}  
-- return_df: Defaulted to False, passed True in case of SELECT query, it returns a pandas dataframe 
-- **kwargs: these parameters are replaced with the sql
+- **file_query**: path to the query file, either this or query shall be passed, can contain {parameters} 
+- **query**: sql query to be executed, can contain {parameters}  
+- **return_df**: Defaulted to False, passed True in case of SELECT query, it returns a pandas dataframe 
+- ****kwargs**: parameters in the sql are replaced with the corrispective kwargs value
 ```
-    example:
+    **example**:
     newdb = db()
     newdb.query_exec(
             query="create database {db}",
-            db=test     # test is replaced within the sql query        
+            db=test     #  {db} is replaced by test in the sql query        
         ) # database test is created
 ```
 ## usage
