@@ -13,12 +13,13 @@ Why in Snowflet L comes before E? I really like the sound of Snoflet
 "ROLE": ""                                     # OPTIONAL
 "TIMEZONE": "europe/london"                    # OPTIONAL
 ```
-# DB
 
+
+
+
+*class snowflet.db.DBExecutor()*
 Snowflake API wrapper
 
-
-`class snowflet.db.DBExecutor()`
 - validate_connection() - return the snowflake version
 - query_exec() - execute the sql query
 Parameters:
