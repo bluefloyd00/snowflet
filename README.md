@@ -1,7 +1,7 @@
 # Snowflake Extract Load Transorm framework  
 Why in Snowflet L comes before E? I really like the sound of Snowflet
 
-# env variable required
+## env variable required
 ```
 "PROJECT_ROOT": "${ProjectFolder}"             # REQUIRED
 "ACCOUNT":  "i.e.gsXXXXX.west-europe.azure"    # REQUIRED
@@ -17,12 +17,13 @@ Why in Snowflet L comes before E? I really like the sound of Snowflet
 
 
 
-# *class* snowflet.db.DBExecutor() <br />
+## *class* snowflet.db.DBExecutor() <br />
 Snowflake API wrapper <br />
 
+### Methods
 **validate_connection()** return the snowflake version <br />
 **query_exec()** execute the sql query  <br />
-Parameters: <br />
+Parameters:
 - **file_query**: path to the query file, either this or query shall be passed, can contain {parameters} 
 - **query**: sql query to be executed, can contain {parameters}  
 - **return_df**: Defaulted to False, passed True in case of SELECT query, it returns a pandas dataframe 
@@ -35,9 +36,9 @@ Parameters: <br />
             db=test     #  {db} is replaced by test in the sql query        
         ) # database test is created
 ```
-## usage
+### usage
 ```
 db = db() # initiate the snowflake connection using env variables
 db.close() # close and dismiss the connection
 ```
-# Pipeline executor
+## Pipeline executor
