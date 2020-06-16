@@ -17,11 +17,11 @@ Why in Snowflet L comes before E? I really like the sound of Snoflet
 
 
 
-*class snowflet.db.DBExecutor()*
-Snowflake API wrapper
+# *class* snowflet.db.DBExecutor() <br />
+Snowflake API wrapper <br />
 
-- validate_connection() - return the snowflake version
-- query_exec() - execute the sql query
+**validate_connection()** return the snowflake version
+**query_exec()** execute the sql query
 Parameters:
 - file_query: path to the query file, either this or query shall be passed, can contain {parameters} 
 - query: sql query to be executed, can contain {parameters}  
