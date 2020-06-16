@@ -1,9 +1,13 @@
+import os
 import unittest
-from snowflet.lib import logging_config
 from snowflet.lib import read_sql
+from snowflet.lib import logging_config
+from snowflet.lib import extract_args
+from snowflet.lib import apply_kwargs
+from snowflet.lib import add_dataset_id_prefix
 
 
-class test_read_sql(unittest.TestCase):
+class ReadSql(unittest.TestCase):
     """ Test """
     def test_class_read_sql_file(self):        
         """ Test """
@@ -61,6 +65,108 @@ class test_read_sql(unittest.TestCase):
                 list_of_dedicated_keywords='20200101'
             )
 
+class FunctionsInLib(unittest.TestCase):
+    """
+    Unittest class for lib functions
+    """
+
+    def test_extract_args_1_param(self):
+        content = [
+                        {
+                            "table_desc": "table1",
+                            "create_table": {
+                                "table_id": "table1",
+                                "dataset_id": "test",              
+                                "file": "tests/sql/table1.sql"
+                            },
+                            "pk": ["col1", "col2"],
+                            "mock_data": "sql/table1_mocked.sql"
+                        },
+                        {
+                            "table_desc": "table2",
+                            "create_table": {
+                                "table_id": "table2",
+                                "dataset_id": "test",
+                                "file": "tests/sql/table2.sql"
+                            },
+                            "pk": ["col1"],
+                            "mock_data": "sql/table1_mocked.sql"
+                        }
+                    ]        
+
+        self.assertEqual(
+            extract_args(content, "pk"),
+            [["col1", "col2"], ["col1"]],
+            "extracted ok"
+            )
+            
+        self.assertEqual(
+            extract_args(content, "create_table"),
+            [
+                {
+                    "table_id": "table1",
+                    "dataset_id": "test",
+                    "file": "tests/sql/table1.sql"
+                },
+                {
+                    "table_id": "table2",
+                    "dataset_id": "test",
+                    "file": "tests/sql/table2.sql"
+                }
+            ],
+            "extracted ok"
+            )
+
+    def test_add_dataset_id_prefix(self):
+        self.yaml = {
+                        "desc": "test",
+                        "tables":
+                        [
+                            {
+                                "table_desc": "table1",
+                                "create_table": {
+                                    "table_id": "table1",
+                                    "dataset_id": "test",              
+                                },                      
+                            },
+                            {
+                                "table_desc": "table2",
+                                "create_table": {
+                                    "table_id": "table2",
+                                    "dataset_id": "test",                                    
+                                },                                    
+                            }
+                        ]
+                    }
+        add_dataset_id_prefix(
+                    self.yaml,
+                    prefix='1234'
+                )
+        self.assertEqual(
+                self.yaml
+                , 
+                {
+                    "desc": "test",
+                    "tables":
+                    [
+                        {
+                            "table_desc": "table1",
+                            "create_table": {
+                                "table_id": "table1",
+                                "dataset_id": "1234_test",              
+                            },                      
+                        },
+                        {
+                            "table_desc": "table2",
+                            "create_table": {
+                                "table_id": "table2",
+                                "dataset_id": "1234_test",                                    
+                            },                                    
+                        }
+                    ]                
+                },
+                "prefix properly added to dataset_id"
+            )
 
 if __name__ == "__main__":
     logging_config()
