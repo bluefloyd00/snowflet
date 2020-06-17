@@ -145,17 +145,28 @@ batches:
 ##### tasks
 -   desc: creates aggregated tables
     tasks:
-    -   desc: run a query
-        object: query_executor
+    -   desc: 
+        object: use a Database
         args:
-        -   query: "SELECT 1 AS COL1, 'a' AS COL2"
-            return_df: True
+        -   file_query: path_to_file.sql
+    -   desc: create table1
+        object: create_table
+        args:
+        -   file: path_to_sql_query_select_file.sql
+            table_schema: path_to_schema_definition_file.sql
+            database_id: dbtest
+            schema_id: sctest
+            table_id: tbtest
+            mock_file: path_to_mock_file.sql
+            output_table_name: staging.attr_order_items_pk 
 
 #### type of objects
 
 query_executor:
 
-it is a wrapper of snowflet.db.exec_query 
+it is a wrapper of snowflet.db.exec_query, same parameters
 
+query_executor:
 
+it is a wrapper of snowflet.db.create_table, same parameters
 
