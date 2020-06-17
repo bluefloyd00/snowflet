@@ -143,6 +143,7 @@ batches:
 ```
 
 ##### tasks
+```
 -   desc: creates aggregated tables
     tasks:
     -   desc: 
@@ -159,14 +160,14 @@ batches:
             table_id: tbtest
             mock_file: path_to_mock_file.sql
             output_table_name: staging.attr_order_items_pk 
-
+```
 #### type of objects
 
-query_executor:
+- query_executor:
 
 it is a wrapper of snowflet.db.exec_query, same parameters
 
-query_executor:
+- create_table:
 
 it is a wrapper of snowflet.db.create_table, same parameters
 
