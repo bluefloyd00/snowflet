@@ -8,6 +8,7 @@ from snowflet.lib import default_database
 from snowflet.lib import default_password
 from snowflet.lib import default_timezone
 from snowflet.lib import default_warehouse
+from snowflet.lib import add_database_id_prefix
 from snowflet.toolkit import read_yaml_file
 import random
 
@@ -39,4 +40,4 @@ class PipelineExecutor:
         self.dry_run_dataset_prefix = None
         if dry_run:
             self.dry_run_dataset_prefix = random.sample(range(1,1000000000),1)[0]
-            add_database_id(obj=self.yaml, prefix=self.dry_run_dataset_prefix, kwargs=self.kwargs)
+            add_database_id_prefix(obj=self.yaml, prefix=self.dry_run_dataset_prefix, kwargs=self.kwargs)

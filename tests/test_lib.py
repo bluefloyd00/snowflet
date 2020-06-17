@@ -4,7 +4,20 @@ from snowflet.lib import read_sql
 from snowflet.lib import logging_config
 from snowflet.lib import extract_args
 from snowflet.lib import apply_kwargs
-from snowflet.lib import add_dataset_id_prefix
+from snowflet.lib import strip_table
+from snowflet.lib import add_database_id_prefix
+
+
+
+class StringFunctions(unittest.TestCase):
+    """ Test """
+    def test_strip_table(self):        
+        """ Test """
+        self.assertEqual(
+            strip_table(table_name='"db"."schema"."table"'),
+            "table",
+            "does not return the table"
+        )
 
 
 class ReadSql(unittest.TestCase):
@@ -99,7 +112,7 @@ class FunctionsInLib(unittest.TestCase):
             [["col1", "col2"], ["col1"]],
             "extracted ok"
             )
-            
+
         self.assertEqual(
             extract_args(content, "create_table"),
             [
@@ -117,7 +130,7 @@ class FunctionsInLib(unittest.TestCase):
             "extracted ok"
             )
 
-    def test_add_dataset_id_prefix(self):
+    def test_add_database_id_prefix(self):
         self.yaml = {
                         "desc": "test",
                         "tables":
@@ -126,19 +139,19 @@ class FunctionsInLib(unittest.TestCase):
                                 "table_desc": "table1",
                                 "create_table": {
                                     "table_id": "table1",
-                                    "dataset_id": "test",              
+                                    "database": "test",              
                                 },                      
                             },
                             {
                                 "table_desc": "table2",
                                 "create_table": {
                                     "table_id": "table2",
-                                    "dataset_id": "test",                                    
+                                    "database": "test",                                    
                                 },                                    
                             }
                         ]
                     }
-        add_dataset_id_prefix(
+        add_database_id_prefix(
                     self.yaml,
                     prefix='1234'
                 )
@@ -153,19 +166,19 @@ class FunctionsInLib(unittest.TestCase):
                             "table_desc": "table1",
                             "create_table": {
                                 "table_id": "table1",
-                                "dataset_id": "1234_test",              
+                                "database": "1234_test",              
                             },                      
                         },
                         {
                             "table_desc": "table2",
                             "create_table": {
                                 "table_id": "table2",
-                                "dataset_id": "1234_test",                                    
+                                "database": "1234_test",                                    
                             },                                    
                         }
                     ]                
                 },
-                "prefix properly added to dataset_id"
+                "prefix properly added to database"
             )
 
 if __name__ == "__main__":
