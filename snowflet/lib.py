@@ -167,12 +167,13 @@ def apply_kwargs(orig, kwargs):
 
 
 def strip_table(table_name: str):
-    if "" in table_name:
-        table_name = table_name.replace('"','')
-    tbl_split = table_name.split(".")
-    if len(tbl_split) == 3:
-        return(tbl_split[2])
+    if len(table_name.split(".")) == 3:
+        return('"' + table_name.replace('"', '') + '"' )
     else:
-        logging.error("Table definition not compliant with the framework")
+        logging.error("Table definition not compliant with the framework, Database and schema shall be explicit")
         raise Exception
 
+def extract_tables_from_query(sql_query: str):
+    """ return a list of table_names """
+    return [word for word in sql_query.split(" ") if len(word.split(".")) == 3 ]
+   

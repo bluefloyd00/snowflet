@@ -47,9 +47,9 @@ db.close() # close and dismiss the connection
 Ad hoc tool for executing pipeline in snowflake, the tool read a yaml file which describe the pipeline steps, and provides method to either run the pipeline or test it (unit and/or uat) <br />
 
 ### Notes
-All the query shall be compliant with the follow:
-- database and shcema sql files shall be explicit i.e. "database"."schema"."table" or database.schema.table 
-- tables in mock data are defined like "database.schema.table"
+All the query file shall be compliant with the follow (including CTE for mock data):
+- database and schema shall be explicit i.e. "database"."schema"."table" or database.schema.table 
+
 
 
 ### Methods
@@ -71,8 +71,27 @@ Parameters:
         ) # database test is created
 ```
 ### Usage
+- for running the Pipeline
+
 ```
-db = db() # initiate the snowflake connection using env variables
-db.close() # close and dismiss the connection
+from snoflet import PipelineExecutor
+pipeline = PipelineExecutor(
+    "path_to_pipeline_folder/pipeline_name.yaml")     # initiate PipelineExecutor for Run
+pipeline.run()                                        # run the pipeline
 ```
 
+- for ci-cd (testing)
+
+```
+from snoflet import PipelineExecutor
+pipeline = PipelineExecutor(
+    "path_to_pipeline_folder/pipeline_name.yaml", 
+    dry_run=True
+    )                                                 # initiate PipelineExecutor for testing
+pipeline.run_unit_tests()                             # run all unit tests in parallel
+try:
+    pipeline.clone_prod_metadata()                    # copy tables' structure from prod
+    pipeline.run()                                    # run the pipeline on empty tables (dry_run)
+finally:
+    pipeline.dry_run_clean()                          # cleans the dev/test environment
+```

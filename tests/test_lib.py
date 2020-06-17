@@ -5,6 +5,7 @@ from snowflet.lib import logging_config
 from snowflet.lib import extract_args
 from snowflet.lib import apply_kwargs
 from snowflet.lib import strip_table
+from snowflet.lib import extract_tables_from_query
 from snowflet.lib import add_database_id_prefix
 
 
@@ -15,8 +16,15 @@ class StringFunctions(unittest.TestCase):
         """ Test """
         self.assertEqual(
             strip_table(table_name='"db"."schema"."table"'),
-            "table",
-            "does not return the table"
+            '"db.schema.table"',
+            "strip_table: wrong table name"
+        )
+    def test_extract_tables_from_query(self):
+        """ Test """
+        self.assertEqual(
+            extract_tables_from_query(sql_query=""" select a,b,c from "db"."schema"."table" and db.schema.table not "schema"."table" """),
+            [  '"db"."schema"."table"',  'db.schema.table' ],
+            "does not extract the tables properly"
         )
 
 
