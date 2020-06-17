@@ -4,7 +4,7 @@ Why in Snowflet L comes before E? I really like the sound of Snowflet
 ## env variable required
 ```
 "PROJECT_ROOT": "${ProjectFolder}"             # REQUIRED
-"ACCOUNT":  "gsXXXXX.west-europe.azure"    # REQUIRED
+"ACCOUNT":  "gsXXXXX.west-europe.azure"        # REQUIRED
 "USER": "user"                                 # REQUIRED
 "PASSWORD": secret_password                    # REQUIRED
 "DATABASE": "default_database"                 # OPTIONAL
@@ -95,3 +95,67 @@ try:
 finally:
     pipeline.dry_run_clean()                          # cleans the dev/test environment
 ```
+
+### YAML definition
+
+**Structure:**
+
+```
+desc: 
+databases: 
+batches:    
+release:
+table_list:
+```
+
+#### databases
+
+list of database referenced in the pipeline
+```
+['database1', 'database2', 'database3']
+```
+#### release 
+list of files that are executed before the execution of the pipeline
+
+example
+```
+release:
+  date: "2020-05-07"
+  desc: "change table schema and delete a table from prod"
+  files:
+    - path_to_file1
+```
+
+#### batches
+
+- contains the list of batches to execute
+- the batches are execute in serial
+- task within the batch runs in parallel
+
+```
+batches:
+-   desc: creates table structure
+    tasks:
+-   desc: creates staging tables
+    tasks:
+-   desc: creates aggregated tables
+    tasks:
+```
+
+##### tasks
+-   desc: creates aggregated tables
+    tasks:
+    -   desc: run a query
+        object: query_executor
+        args:
+        -   query: "SELECT 1 AS COL1, 'a' AS COL2"
+            return_df: True
+
+#### type of objects
+
+query_executor:
+
+it is a wrapper of snowflet.db.exec_query 
+
+
+
