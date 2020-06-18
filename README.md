@@ -142,7 +142,7 @@ batches:
     tasks:
 ```
 
-##### tasks
+**tasks:**
 ```
 -   desc: creates aggregated tables
     tasks:
