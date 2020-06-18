@@ -111,11 +111,11 @@ class PipelineExecutor:
                 )
 
 
-    # def run(self):
-    #     # run release (ToDo)
-    #     # run batches
-    #     batch_list = self.yaml.get('batches', '')
-    #     for batch in batch_list:
-    #         apply_kwargs(batch, self.kwargs)  ## resolve environment variable passed as kwargs
-    #         self.run_batch(batch)
+    def run(self):
+        # run release (ToDo)
+        # run batches
+        batch_list = self.yaml.get('batches', '')
+        for batch in batch_list:
+            apply_kwargs(batch, self.kwargs)  ## resolve environment variable passed as kwargs
+            self.run_batch(batch)
         

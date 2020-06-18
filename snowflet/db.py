@@ -94,11 +94,11 @@ class DBExecutor:
             )
         else:
             try:
-                if self.database_exists(database_id):
-                    self.query_exec(
-                            query="DROP DATABASE {db}",
-                            db=database_id
-                        )
+                
+                self.query_exec(
+                        query="DROP DATABASE {db}",
+                        db=database_id
+                    )
                 logging.info(
                     "Dropped database: %s",
                     database_id
@@ -121,6 +121,20 @@ class DBExecutor:
                 )
 
         if database_id.upper() in result['name'].values.tolist():
+            return True
+        else:
+            return False
+
+    def table_exists(self, database_id, schema_id, table_id):
+
+        result = self.query_exec(
+                    query="SHOW TABLES IN  {db}.{schema} ",
+                    return_df=True,
+                    db=database_id.upper(),
+                    schema=schema_id.upper()
+                )
+
+        if table_id.upper() in result['name'].values.tolist():
             return True
         else:
             return False

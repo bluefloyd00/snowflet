@@ -5,6 +5,23 @@ import unittest
 import snowflet.pipeline as pl
 from snowflet.lib import logging_config
 
+
+class TestRun(unittest.TestCase):
+    def setUp(self):
+        self.pipeline = pl.PipelineExecutor("tests/yaml/run_batches.yaml")
+
+    def test_run_initiate_db_execute_query(self):
+        self.pipeline.run()
+        self.assertTrue(
+            self.pipeline.db.table_exists(database_id="TEST_RUN_BATCH", schema_id="TEST_SCHEMA", table_id="table1"),
+            "test_run_batch pipeline not properly run"
+            )
+    
+    def tearDown(self):
+        """ Test """
+        self.pipeline.db.delete_database(database_id="TEST_RUN_BATCH")
+        self.pipeline.db.close()
+
 class TestTask(unittest.TestCase):
     def setUp(self):
         self.pipeline = pl.PipelineExecutor("tests/yaml/task.yaml")

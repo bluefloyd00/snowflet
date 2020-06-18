@@ -12,6 +12,7 @@ class DBExecutorUtilities(unittest.TestCase):
         """ Test """
         self.db = db() 
         self.db.create_database(database_id="test_utilities")
+        self.db.create_schema(database_id="test_utilities", schema_id="test")
         
 
     def tearDown(self):
@@ -19,6 +20,16 @@ class DBExecutorUtilities(unittest.TestCase):
         self.db.delete_database(database_id="test_utilities")
         self.db.close()
        
+    def test_table_exists(self):
+        self.db.query_exec(query="CREATE TABLE TEST_UTILITIES.TEST.table2 AS SELECT 1 as col1")
+        self.assertTrue(
+            self.db.table_exists(
+                database_id="TEST_UTILITIES",
+                schema_id="TEST",
+                table_id="table2"
+            ),
+            "issue with table_exists method, table2 not found"
+        )
 
     def test_database_does_not_exist(self):
 
