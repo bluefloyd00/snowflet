@@ -1,8 +1,7 @@
 import time
-import asyncio
 import logging
 import unittest
-from unittest import mock
+# from unittest import mock
 import snowflet.pipeline as pl
 
 
@@ -12,8 +11,8 @@ class TestExecute_parallel(unittest.TestCase):
 
     def sleep_2_sec(self, num):
         time.sleep(2)
-        a = 3 + 2
-        return "ciao"
+        f = num + 2
+        return f
 
     def test_time_is_right(self):
         start_time = time.time()
@@ -43,6 +42,7 @@ class TestExecute_parallel(unittest.TestCase):
                     self.bug,
                     [{"status": "ok"}, {"status": "ok"}, {"status": "error"}, {"status": "ok"}]
                 )
+
 
 if __name__ == '__main__':
     unittest.main()
