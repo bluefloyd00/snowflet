@@ -5,6 +5,7 @@ import logging
 import threading
 import numpy as np
 import concurrent.futures
+from snowflet.lib import apply_kwargs
 from snowflet.lib import default_user
 from snowflet.lib import default_role
 from snowflet.lib import extract_args
@@ -20,7 +21,10 @@ from snowflet.toolkit import read_yaml_file
 from snowflet.lib import add_database_id_prefix
 
 
-def execute_parallel(func, args, message='running task', log=''):
+
+
+
+def execute_parallel(func_list, workers=10):
     """
     execute the functions in parallel for each list of parameters passed in args
 
@@ -29,42 +33,40 @@ def execute_parallel(func, args, message='running task', log=''):
     args: list of function's args
 
     """
-    tasks = []
-    count = []
 
-    # logging.basicConfig(format=format, level=logging.INFO,
-    #                      datefmt="%H:%M:%S")
-   
-    with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
-        future_to_func = {executor.submit(func, **arg): arg for arg in args}
+    with concurrent.futures.ThreadPoolExecutor(max_workers=workers) as executor:
+        future_to_func = {executor.submit(f.get('object',''), **f.get('args','')): f for f in func_list}
         for future in concurrent.futures.as_completed(future_to_func):
             arg = future_to_func[future]
             try:
-                ret = future.result()
+                res = future.result()
             except AssertionError as ass_exc:
-                logging.info(f"{message} {arg.get(log,'')}: failed")
+                logging.error(ass_exc)
+                logging.info(f"{arg.get('desc','')}: failed")
                 raise AssertionError
             except Exception as exc:
                 logging.info('%r generated an exception: %s' % (arg, exc))
-                raise Exception            
+                raise Exception
             else:
-                logging.info(f"{message} {arg.get(log,'')}") 
+                logging.info(f"{arg.get('desc','running task')}")
+
 
 class PipelineExecutor:
 
     def __init__(
         self,
         yaml_file,
-        account = default_account(),
-        user = default_user(),
-        password = default_password(),
-        database = default_database(),
-        schema = default_schema(),
-        warehouse = default_warehouse(),
+        account=default_account(),
+        user=default_user(),
+        password=default_password(),
+        database=default_database(),
+        schema=default_schema(),
+        warehouse=default_warehouse(),
         role=default_role(),
-        timezone = default_timezone(),
-        dry_run=False, 
-        *args, 
+        timezone=default_timezone(),
+        dry_run=False,
+        workers=10,
+        *args,
         **kwargs
     ):
         self.db = db(
@@ -72,23 +74,46 @@ class PipelineExecutor:
             database=database, schema=schema, warehouse=warehouse, 
             role=role, timezone=timezone
         )
-     
+        self.workers = workers
         self.kwargs = kwargs
         self.yaml = read_yaml_file(yaml_file)
         self.dry_run_dataset_prefix = None
         if dry_run:
-            self.dry_run_dataset_prefix = random.sample(range(1,1000000000),1)[0]
-            add_database_id_prefix(obj=self.yaml, prefix=self.dry_run_dataset_prefix, kwargs=self.kwargs)
+            self.dry_run_dataset_prefix = random.sample(range(1, 1000000000), 1)[0]
+            add_database_id_prefix(
+                obj=self.yaml,
+                prefix=self.dry_run_dataset_prefix,
+                kwargs=self.kwargs)
+        logging_config()
 
-    def batch_executor(self, batch):
-        args = [] # initiate args
-        batch_content = batch.get('tasks', '')
-        args = extract_args(batch_content, 'args')
-        if args == []:
+    def select_object(self, obj_name):
+        if obj_name == 'query_executor':
+            return self.db.query_exec
+        else:
+            raise Exception("No matching object")
+
+    def map_objects(self, tasks):
+        for task in tasks:
+            for key_, value_ in task.items():
+                if key_ == 'object':
+                    task.update({key_: self.select_object(value_)})
+
+    def run_batch(self, batch):
+        tasks = batch.get('tasks', '')
+        self.map_objects(tasks)
+        if tasks == []:
             raise Exception("load_google_sheet in yaml is not well defined")
         execute_parallel(
-                    get_db_object(),
-                    args,
-                    message='Loading table:',
-                    log='table_id'
-                    )
+                    tasks,
+                    workers=self.workers
+                )
+
+
+    # def run(self):
+    #     # run release (ToDo)
+    #     # run batches
+    #     batch_list = self.yaml.get('batches', '')
+    #     for batch in batch_list:
+    #         apply_kwargs(batch, self.kwargs)  ## resolve environment variable passed as kwargs
+    #         self.run_batch(batch)
+        

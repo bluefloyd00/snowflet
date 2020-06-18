@@ -1,4 +1,5 @@
 import pandas as pd
+import logging
 # from snowflake.sqlalchemy import URL
 from sqlalchemy import create_engine   
 from snowflet.lib import read_sql
@@ -59,8 +60,77 @@ class DBExecutor:
             self.database = database
             self.schema = schema
             self.connect()
+    
+    def create_database(self, database_id):
+        if self.database_exists(database_id):
+            logging.info(
+                "Dataset %s already exists",
+                database_id
+            )
+        else:
+            try:
+                self.query_exec(
+                    query="CREATE DATABASE {db}",
+                    db=database_id
+                )
+                logging.info(
+                    "Created database: %s",
+                    database_id
+                )
+            except Exception as error:
+                logging.error(error)
+        
+    def use_database(self, database_id):
+        self.query_exec(
+                query="USE DATABASE  {db}",
+                db=database_id
+            )
 
-    def query_exec(self,  file_query="", query="", return_df=False, database=default_database(), schema=default_schema(), *args, **kwargs):
+    def delete_database(self, database_id):
+        if not self.database_exists(database_id):
+            logging.info(
+                "Dataset %s does not exists",
+                database_id
+            )
+        else:
+            try:
+                if self.database_exists(database_id):
+                    self.query_exec(
+                            query="DROP DATABASE {db}",
+                            db=database_id
+                        )
+                logging.info(
+                    "Dropped database: %s",
+                    database_id
+                )
+            except Exception as error:
+                logging.error(error)
+
+    def create_schema(self, schema_id, database_id=default_database):
+        self.query_exec(
+                query="CREATE SCHEMA {db}.{schema}",
+                db=database_id,
+                schema=schema_id
+            )
+
+    def database_exists(self, database_id):
+
+        result = self.query_exec(
+                    query="SHOW DATABASES",
+                    return_df=True
+                )
+
+        if database_id.upper() in result['name'].values.tolist():
+            return True
+        else:
+            return False
+
+    def initiate_database_schema(self, database_id, schema_id):
+        self.create_database(database_id=database_id)
+        self.create_schema(schema_id=schema_id,database_id=database_id)
+        
+
+    def query_exec(self,  file_query="", query="", return_df=False, *args, **kwargs):
         result = None
         sql = read_sql(file_query, query, **kwargs)
         try:

@@ -4,30 +4,34 @@ import pandas as pd
 import unittest
 from snowflet.lib import df_assert_equal
 
+class DBExecutorUtilities(unittest.TestCase):
 
-def initiate_db(database):
-    newdb = db()
-    newdb.query_exec(
-            query="create database {db}",
-            db=database
-        )
-    newdb.query_exec(
-            query="use database  {db}",
-            db=database
-        )
-    newdb.query_exec(
-            query="create schema unittests",
-            db=database
-        )
+    """ Test """
+    def setUp(self):
 
+        """ Test """
+        self.db = db() 
+        self.db.create_database(database_id="test_utilities")
+        
 
-def delete_db(database):
-    newdb = db()
-    newdb.query_exec(
-            query="DROP DATABASE {db}",
-            db=database
+    def tearDown(self):
+        """ Test """
+        self.db.delete_database(database_id="test_utilities")
+        self.db.close()
+       
+
+    def test_database_does_not_exist(self):
+
+        """ Test """
+        self.assertFalse(
+            self.db.database_exists("ciao")
         )
+    def test_database_does_exists(self):
 
+        """ Test """
+        self.assertTrue(
+            self.db.database_exists("test_utilities")
+        )
 
 class DBExecutorValidateConnection(unittest.TestCase):
 
@@ -56,13 +60,14 @@ class DBExecutorQueryExec(unittest.TestCase):
 
         """ Test """
         self.db = db()
-        initiate_db(database="TestQueryExec")
+        self.db.initiate_database_schema(database_id="TESTQUERYEXEC", schema_id='UNITTESTS')
 
     def tearDown(self):
 
         """ Test """
+        self.db.delete_database(database_id="TESTQUERYEXEC")
         self.db.close()
-        delete_db(database="TestQueryExec")
+        
 
     def test_query_exec_create_table_read_df(self):
 

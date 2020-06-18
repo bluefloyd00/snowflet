@@ -124,6 +124,7 @@ def default_role():
     """
     return os.environ.get('ROLE', '')
 
+
 def default_timezone():
     """
     Returns TIMEZONE if env is set
@@ -133,7 +134,7 @@ def default_timezone():
 
 def add_database_id_prefix(obj, prefix, kwargs={}):
 
-    if isinstance(obj, list):        
+    if isinstance(obj, list):     
         for i in obj:
             add_database_id_prefix(i, prefix, kwargs)
 
@@ -173,7 +174,7 @@ def strip_table(table_name: str):
         logging.error("Table definition not compliant with the framework, Database and schema shall be explicit")
         raise Exception
 
+
 def extract_tables_from_query(sql_query: str):
     """ return a list of table_names """
-    return [word for word in sql_query.split(" ") if len(word.split(".")) == 3 ]
-   
+    return [word for word in sql_query.split(" ") if len(word.split(".")) == 3]

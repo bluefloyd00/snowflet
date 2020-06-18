@@ -1,0 +1,15 @@
+desc: ultimately creates Product table in Data 
+databases: [flat_events, staging, data, reporting]
+batches:         
+  - desc: create database run_batch
+    object: execute_query 
+    args: 
+        query: """ create  """
+          table_id: attr_product_cost_product
+          dataset_id: staging 
+          schema_path: product/schema/attr_product_cost_product.json
+          file: product/sql/attr_product_cost_product.sql            
+        pk: [sku]
+        mock_data: 
+          mock_file: product/mock/cte_attr_product_cost_product.sql
+          output_table_name: staging.attr_product_cost_product

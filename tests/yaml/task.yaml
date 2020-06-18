@@ -1,0 +1,2 @@
+desc: ultimately creates Product table in Data 
+databases: [flat_events, staging, data, reporting]
