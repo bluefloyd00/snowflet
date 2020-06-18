@@ -1,0 +1,18 @@
+desc: ultimately creates Product table in Data 
+databases: [flat_events, staging, data, reporting]
+batches:  
+- desc: set up test environment
+  tasks:       
+  - desc: create database run_batch
+    object: initiate_database_schema 
+    args:
+      database_id: test_run_batch
+      schema_id: test_schema
+- desc: create table1
+  tasks:     
+  - desc: create table1
+    object: query_executor
+    args:
+      query: CREATE TABLE TEST_RUN_BATCH.TEST_SCHEMA.table1 AS SELECT 1 AS COL1, 'B' as COL2
+
+    

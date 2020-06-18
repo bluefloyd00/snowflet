@@ -4,27 +4,44 @@ import pandas as pd
 import unittest
 from snowflet.lib import df_assert_equal
 
+class DBExecutorUtilities(unittest.TestCase):
 
-def initiate_db(database):
-    newdb = db()
-    newdb.query_exec(
-            query="create database {db}",
-            db=database            
-        )
-    newdb.query_exec(
-            query="use database  {db}",
-            db=database            
-        )
-    newdb.query_exec(
-            query="create schema unittests",
-            db=database            
+    """ Test """
+    def setUp(self):
+
+        """ Test """
+        self.db = db() 
+        self.db.create_database(database_id="test_utilities")
+        self.db.create_schema(database_id="test_utilities", schema_id="test")
+        
+
+    def tearDown(self):
+        """ Test """
+        self.db.delete_database(database_id="test_utilities")
+        self.db.close()
+       
+    def test_table_exists(self):
+        self.db.query_exec(query="CREATE TABLE TEST_UTILITIES.TEST.table2 AS SELECT 1 as col1")
+        self.assertTrue(
+            self.db.table_exists(
+                database_id="TEST_UTILITIES",
+                schema_id="TEST",
+                table_id="table2"
+            ),
+            "issue with table_exists method, table2 not found"
         )
 
-def delete_db(database):
-    newdb = db()
-    newdb.query_exec(
-            query="DROP DATABASE {db}",
-            db=database            
+    def test_database_does_not_exist(self):
+
+        """ Test """
+        self.assertFalse(
+            self.db.database_exists("ciao")
+        )
+    def test_database_does_exists(self):
+
+        """ Test """
+        self.assertTrue(
+            self.db.database_exists("test_utilities")
         )
 
 class DBExecutorValidateConnection(unittest.TestCase):
@@ -34,13 +51,10 @@ class DBExecutorValidateConnection(unittest.TestCase):
 
         """ Test """
         self.db = db()
-        
 
     def tearDown(self):
-  
         """ Test """
         self.db.close()
-        
 
     def test_dataset_does_not_exists(self):
 
@@ -49,6 +63,7 @@ class DBExecutorValidateConnection(unittest.TestCase):
             self.db.validate_connection()
         )
 
+
 class DBExecutorQueryExec(unittest.TestCase):
 
     """ Test """
@@ -56,13 +71,14 @@ class DBExecutorQueryExec(unittest.TestCase):
 
         """ Test """
         self.db = db()
-        initiate_db(database="TestQueryExec")
+        self.db.initiate_database_schema(database_id="TESTQUERYEXEC", schema_id='UNITTESTS')
 
     def tearDown(self):
-  
+
         """ Test """
+        self.db.delete_database(database_id="TESTQUERYEXEC")
         self.db.close()
-        delete_db(database="TestQueryExec")
+        
 
     def test_query_exec_create_table_read_df(self):
 
@@ -72,11 +88,11 @@ class DBExecutorQueryExec(unittest.TestCase):
         )
         sql_df = self.db.query_exec(
             query="""select * from "TESTQUERYEXEC"."UNITTESTS"."example" """,
-            return_df=True        
+            return_df=True
         )
-        expected_df = pd.DataFrame([1,2], columns = ['col1']) 
+        expected_df = pd.DataFrame([1, 2], columns=['col1'])
         df_assert_equal(expected_df, sql_df)
-        
+
 
 if __name__ == "__main__":
     logging_config()
