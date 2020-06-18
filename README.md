@@ -53,23 +53,12 @@ All the query file shall be compliant with the follow (including CTE for mock da
 
 
 ### Methods
-**validate_connection()** return the snowflake version <br />
+**run()** execute the pipeline against local db<br />
 
-**query_exec()** execute the sql query  <br />
+**clone_prod() TBD** clone the prod db metadata <br />
 
-Parameters:
-- **file_query**: path to the query file, either this or query shall be passed, can contain {parameters} 
-- **query**: sql query to be executed, can contain {parameters}  
-- **return_df**: Defaulted to False, passed True in case of SELECT query, it returns a pandas dataframe 
-- **kwargs**: parameters in the sql are replaced with the corresponding kwarg value
-```
-    """ example """
-    newdb = db()
-    newdb.query_exec(
-            query="create database {db}",
-            db=test     #  {db} is replaced by test in the sql query        
-        ) # database test is created
-```
+**clone_clean() TBD** removed the cloned databases <br />
+
 ### Usage
 - for running the Pipeline
 
@@ -86,14 +75,14 @@ pipeline.run()                                        # run the pipeline
 from snoflet import PipelineExecutor
 pipeline = PipelineExecutor(
     "path_to_pipeline_folder/pipeline_name.yaml", 
-    dry_run=True
+    test=True
     )                                                 # initiate PipelineExecutor for testing
 pipeline.run_unit_tests()                             # run all unit tests in parallel
 try:
-    pipeline.clone_prod_metadata()                    # copy tables' structure from prod
+    pipeline.clone_prod()                    # copy tables' structure from prod
     pipeline.run()                                    # run the pipeline on empty tables (dry_run)
 finally:
-    pipeline.dry_run_clean()                          # cleans the dev/test environment
+    pipeline.clone_clean()                          # cleans the dev/test environment
 ```
 
 ### YAML definition
