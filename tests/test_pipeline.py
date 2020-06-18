@@ -3,6 +3,7 @@ import logging
 import unittest
 # from unittest import mock
 import snowflet.pipeline as pl
+from snowflet.lib import logging_config
 
 class TestTask(unittest.TestCase):
     def setUp(self):
@@ -133,4 +134,5 @@ class TestExecute_parallel(unittest.TestCase):
 
 
 if __name__ == '__main__':
+    logging_config()
     unittest.main()

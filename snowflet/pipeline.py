@@ -40,16 +40,14 @@ def execute_parallel(func_list, workers=10):
             arg = future_to_func[future]
             try:
                 res = future.result()
+                logging.info(f"PipelineExecutor - {arg.get('desc','running task')}")
             except AssertionError as ass_exc:
                 logging.error(ass_exc)
-                logging.info(f"{arg.get('desc','')}: failed")
+                logging.info(f"PipelineExecutor - {arg.get('desc','')}: failed")
                 raise AssertionError
             except Exception as exc:
-                logging.info('%r generated an exception: %s' % (arg, exc))
+                logging.info('PipelineExecutor - %r generated an exception: %s' % (arg, exc))
                 raise Exception
-            else:
-                logging.info(f"{arg.get('desc','running task')}")
-
 
 class PipelineExecutor:
 
@@ -89,6 +87,10 @@ class PipelineExecutor:
     def select_object(self, obj_name):
         if obj_name == 'query_executor':
             return self.db.query_exec
+        if obj_name == 'initiate_database_schema':
+            return self.db.initiate_database_schema
+        if obj_name == 'dop_database':
+            return self.db.delete_database
         else:
             raise Exception("No matching object")
 
@@ -102,7 +104,7 @@ class PipelineExecutor:
         tasks = batch.get('tasks', '')
         self.map_objects(tasks)
         if tasks == []:
-            raise Exception("load_google_sheet in yaml is not well defined")
+            raise Exception("PipelineExecutor - load_google_sheet in yaml is not well defined")
         execute_parallel(
                     tasks,
                     workers=self.workers
