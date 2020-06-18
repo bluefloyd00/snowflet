@@ -9,23 +9,25 @@ def initiate_db(database):
     newdb = db()
     newdb.query_exec(
             query="create database {db}",
-            db=database            
+            db=database
         )
     newdb.query_exec(
             query="use database  {db}",
-            db=database            
+            db=database
         )
     newdb.query_exec(
             query="create schema unittests",
-            db=database            
+            db=database
         )
+
 
 def delete_db(database):
     newdb = db()
     newdb.query_exec(
             query="DROP DATABASE {db}",
-            db=database            
+            db=database
         )
+
 
 class DBExecutorValidateConnection(unittest.TestCase):
 
@@ -34,13 +36,10 @@ class DBExecutorValidateConnection(unittest.TestCase):
 
         """ Test """
         self.db = db()
-        
 
     def tearDown(self):
-  
         """ Test """
         self.db.close()
-        
 
     def test_dataset_does_not_exists(self):
 
@@ -48,6 +47,7 @@ class DBExecutorValidateConnection(unittest.TestCase):
         self.assertIsNotNone(
             self.db.validate_connection()
         )
+
 
 class DBExecutorQueryExec(unittest.TestCase):
 
@@ -59,7 +59,7 @@ class DBExecutorQueryExec(unittest.TestCase):
         initiate_db(database="TestQueryExec")
 
     def tearDown(self):
-  
+
         """ Test """
         self.db.close()
         delete_db(database="TestQueryExec")
@@ -72,11 +72,11 @@ class DBExecutorQueryExec(unittest.TestCase):
         )
         sql_df = self.db.query_exec(
             query="""select * from "TESTQUERYEXEC"."UNITTESTS"."example" """,
-            return_df=True        
+            return_df=True
         )
-        expected_df = pd.DataFrame([1,2], columns = ['col1']) 
+        expected_df = pd.DataFrame([1, 2], columns=['col1'])
         df_assert_equal(expected_df, sql_df)
-        
+
 
 if __name__ == "__main__":
     logging_config()

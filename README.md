@@ -146,8 +146,8 @@ batches:
 ```
 -   desc: creates aggregated tables
     tasks:
-    -   desc: 
-        object: use a Database
+    -   desc: use Database
+        object: query_executor
         args:
         -   file_query: path_to_file.sql
     -   desc: create table1

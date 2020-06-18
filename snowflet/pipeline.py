@@ -5,19 +5,19 @@ import logging
 import threading
 import numpy as np
 import concurrent.futures
-from snowflet.db import DBExecutor as db
-from snowflet.lib import logging_config
 from snowflet.lib import default_user
 from snowflet.lib import default_role
+from snowflet.lib import extract_args
 from snowflet.lib import default_schema
+from snowflet.lib import logging_config
 from snowflet.lib import default_account
+from snowflet.db import DBExecutor as db
 from snowflet.lib import default_database
 from snowflet.lib import default_password
 from snowflet.lib import default_timezone
 from snowflet.lib import default_warehouse
-from snowflet.lib import add_database_id_prefix
 from snowflet.toolkit import read_yaml_file
-import random
+from snowflet.lib import add_database_id_prefix
 
 
 def execute_parallel(func, args, message='running task', log=''):
@@ -80,3 +80,15 @@ class PipelineExecutor:
             self.dry_run_dataset_prefix = random.sample(range(1,1000000000),1)[0]
             add_database_id_prefix(obj=self.yaml, prefix=self.dry_run_dataset_prefix, kwargs=self.kwargs)
 
+    def batch_executor(self, batch):
+        args = [] # initiate args
+        batch_content = batch.get('tasks', '')
+        args = extract_args(batch_content, 'args')
+        if args == []:
+            raise Exception("load_google_sheet in yaml is not well defined")
+        execute_parallel(
+                    get_db_object(),
+                    args,
+                    message='Loading table:',
+                    log='table_id'
+                    )
