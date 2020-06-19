@@ -57,8 +57,8 @@ class PipelineExecutor:
         account=default_account(),
         user=default_user(),
         password=default_password(),
-        database=default_database(),
-        schema=default_schema(),
+        database_id=default_database(),
+        schema_id=default_schema(),
         warehouse=default_warehouse(),
         role=default_role(),
         timezone=default_timezone(),
@@ -69,7 +69,7 @@ class PipelineExecutor:
     ):
         self.db = db(
             account=account, user=user, password=password, 
-            database=database, schema=schema, warehouse=warehouse, 
+            database_id=database_id, schema_id=schema_id, warehouse=warehouse, 
             role=role, timezone=timezone
         )
         self.workers = workers

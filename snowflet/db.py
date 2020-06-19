@@ -107,11 +107,27 @@ class DBExecutor:
                 logging.error(error)
 
     def create_schema(self, schema_id, database_id=default_database):
-        self.query_exec(
-                query="CREATE SCHEMA {db}.{schema}",
-                db=database_id,
-                schema=schema_id
+        if self.schema_exists(database_id=database_id, schema_id=schema_id):
+            logging.info(
+                "Schema %s.%s already exists",
+                database_id,
+                schema_id
             )
+        else:
+            try:
+                self.query_exec(
+                    query="CREATE SCHEMA {db}.{schema}",
+                    db=database_id,
+                    schema=schema_id
+                )
+                logging.info(
+                    "Created schema: %s.%s",
+                    database_id,
+                    schema_id
+                )
+            except Exception as error:
+                logging.error(error)
+        
 
     def database_exists(self, database_id):
 
@@ -121,6 +137,18 @@ class DBExecutor:
                 )
 
         if database_id.upper() in result['name'].values.tolist():
+            return True
+        else:
+            return False
+
+    def schema_exists(self, schema_id, database_id):
+        result = self.query_exec(
+                    query="SHOW SCHEMAS IN DATABASE {db}",
+                    return_df=True,
+                    db=database_id
+                )
+
+        if schema_id.upper() in result['name'].values.tolist():
             return True
         else:
             return False
@@ -157,7 +185,22 @@ class DBExecutor:
             raise Exception
         return result
 
-    def write_to_table(
+    # def is_schema_ddl_equal(
+    #     self,
+    #     database_id,
+    #     schema_id,
+    #     table_id,
+    #     ddl_file,
+    #     **kwargs
+    # ):
+    #     ddl = read_sql( file=ddl_file, **kwargs)
+    #     ddl_returned = self.query_exec(
+    #         query=""" SELCT  GET_DDL( 'table' , '{}.{}.{}' ) """.format( database_id, schema_id, table_id )
+    #     )
+    #     assert string.join(ddl_returned.fetchall()) == ddl
+
+
+    def write_table(
         self, 
         database_id, 
         schema_id, 
@@ -165,7 +208,7 @@ class DBExecutor:
         ddl_file=None, 
         file_query="", 
         query="",
-        df=None,
+        df="",
         truncate=False, 
         *args, 
         **kwargs
@@ -187,7 +230,8 @@ class DBExecutor:
             else:
                 sql_part_1 = """ CREATE TABLE {}.{}.{} AS """.format(database_id, schema_id, table_id) # define first part
         else:
-            pass  #check the schema is the same in the ddl
+            logging.info("TBD: assert on ddl table vs ddl file")
+            # self.is_table_schema_vs_ddl(table_id, ddl_file)  # IF THE TABLE SCHEMA IS DIFFERENT FROM THE DDL RAISE AN ERROR
             overwrite = ""
             if truncate:
                 overwrite = " OVERWRITE "        
@@ -202,7 +246,7 @@ class DBExecutor:
             )
         else:
             sql_part_2 = read_sql(file_query, query)
-            sql = sql_part_1, sql_part_2
+            sql = sql_part_1 + sql_part_2
             self.query_exec(query=sql, **kwargs)
 
         logging.info(
