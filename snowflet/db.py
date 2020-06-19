@@ -200,7 +200,7 @@ class DBExecutor:
     #     assert string.join(ddl_returned.fetchall()) == ddl
 
 
-    def write_table(
+    def load_table(
         self, 
         database_id, 
         schema_id, 
