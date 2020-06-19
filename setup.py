@@ -15,7 +15,7 @@ def read(*filenames, **kwargs):
 long_description = read("README.md")
 
 setuptools.setup(
-    name="snoflet",
+    name="snowflet",
     version=versioneer.get_version(),
     author="Simone Fiorentini",
     author_email="simone.fiorentini@gmail.com",
