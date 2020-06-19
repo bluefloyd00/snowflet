@@ -27,7 +27,12 @@ setuptools.setup(
     packages=setuptools.find_packages(),
     install_requires=[
         'wheel',
-        'PyYAML==5.3.1'
+        'PyYAML==5.3.1',
+        'snowflake-sqlalchemy',
+        'numpy',
+        'pandas',
+        'nltk',
+        'versioneer'
     ],
     cmdclass=versioneer.get_cmdclass(),
     classifiers=[
