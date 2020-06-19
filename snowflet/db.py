@@ -235,7 +235,7 @@ class DBExecutor:
             overwrite = ""
             if truncate:
                 overwrite = " OVERWRITE "        
-            sql_part_1 = """ INSERT {} INTO {}.{}.{} AS """.format(overwrite, database_id, schema_id, table_id)
+            sql_part_1 = """ INSERT {} INTO {}.{}.{}  """.format(overwrite, database_id, schema_id, table_id)
 
         
         if df != "":
