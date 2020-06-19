@@ -19,8 +19,8 @@ class DBExecutor:
         account=default_account(),
         user=default_user(),
         password=default_password(),
-        database=default_database(),
-        schema=default_schema(),
+        database_id=default_database(),
+        schema_id=default_schema(),
         warehouse=default_warehouse(),
         role=default_role(),
         timezone=default_timezone()
@@ -28,8 +28,8 @@ class DBExecutor:
         self.password = password
         self.user = user
         self.account = account
-        self.database = database
-        self.schema = schema
+        self.database = database_id
+        self.schema = schema_id
         self.warehouse = warehouse
         self.role = role
         self.timezone = timezone
@@ -156,3 +156,58 @@ class DBExecutor:
             self.close()
             raise Exception
         return result
+
+    def write_to_table(
+        self, 
+        database_id, 
+        schema_id, 
+        table_id, 
+        ddl_file=None, 
+        file_query="", 
+        query="",
+        df=None,
+        truncate=False, 
+        *args, 
+        **kwargs
+        ):
+
+        if [file_query, query, df].count("") != 2:
+            raise Exception("One between file_query, query and df shall be provided")
+
+        sql_part_1, sql_part_2 = "", ""
+
+        if not self.table_exists(
+            database_id=database_id,
+            schema_id=schema_id,
+            table_id=table_id
+        ):
+            # table does not exist
+            if ddl_file is not None:
+                self.query_exec(read_sql(file=ddl_file)) # create the table
+            else:
+                sql_part_1 = """ CREATE TABLE {}.{}.{} AS """.format(database_id, schema_id, table_id) # define first part
+        else:
+            pass  #check the schema is the same in the ddl
+            overwrite = ""
+            if truncate:
+                overwrite = " OVERWRITE "        
+            sql_part_1 = """ INSERT {} INTO {}.{}.{} AS """.format(overwrite, database_id, schema_id, table_id)
+
+        
+        if df != "":
+            df.to_sql(
+                '{}.{}.{}'.format( database_id, schema_id, table_id), 
+                con=self.engine, 
+                index=False
+            )
+        else:
+            sql_part_2 = read_sql(file_query, query)
+            sql = sql_part_1, sql_part_2
+            self.query_exec(query=sql, **kwargs)
+
+        logging.info(
+            'Query results loaded to table %s.%s.%s',
+                database_id,
+                schema_id,
+                table_id
+            )
