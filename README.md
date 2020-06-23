@@ -53,7 +53,7 @@ All the query file shall be compliant with the follow (including CTE for mock da
 
 
 ### Methods
-**run()** execute the pipeline against local db<br />
+**run()** execute the pipeline <br />
 
 **clone_prod() TBD** clone the prod db metadata <br />
 
@@ -94,7 +94,6 @@ desc:
 databases: 
 batches:    
 release:
-table_list:
 ```
 
 #### databases

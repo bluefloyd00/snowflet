@@ -4,6 +4,77 @@ import pandas as pd
 import unittest
 from snowflet.lib import df_assert_equal
 
+class DBLoadTable(unittest.TestCase):
+
+    """ Test """
+    def setUp(self):
+
+        """ Test """
+        self.db = db() 
+        self.db.create_database(database_id="test_load_table")
+        self.db.create_schema(database_id="test_load_table", schema_id="test")
+        
+        
+    def tearDown(self):
+        """ Test """
+        try: 
+            self.db.validate_connection() 
+        except:
+            self.db = db()
+
+        self.db.delete_database(database_id="test_load_table")
+        self.db.close()
+       
+    def test_load_table_too_many_arguments(self):
+        with self.assertRaises(Exception):
+            self.db.load_table(
+                database_id="test_load_table",
+                schema_id="test",
+                table_id="test_load_table_too_many_arguments",
+                query="query",
+                file_query="path_to_query"
+            )
+
+    def test_load_table_no_arguments(self):
+        with self.assertRaises(Exception):
+            self.db.load_table(
+                database_id="test_load_table",
+                schema_id="test",
+                table_id="test_load_table_no_arguments"                
+            )
+
+    def test_load_table_table_does_not_exists_no_ddl(self):
+        pass
+    def test_load_table_table_does_not_exists_with_ddl(self):
+        pass
+
+    def test_load_table_table_exists_and_truncate(self):
+        self.db.query_exec(query="create table test_load_table.test.test_load_table_table_exists_and_truncate as select 1 as col1")
+        self.db.load_table(
+                database_id="test_load_table",
+                schema_id="test",
+                table_id="test_load_table_table_exists_and_truncate",
+                query="select 2 as col1",
+                truncate=True              
+            )
+        expected_df = pd.DataFrame(data=[2], columns = ['col1'])
+        returned_df = self.db.query_exec(query="select * from test_load_table.test.test_load_table_table_exists_and_truncate", return_df=True)
+        df_assert_equal(expected_df, returned_df)
+
+    def test_load_table_table_exists_no_truncate(self):
+        self.db.query_exec(query="create table test_load_table.test.test_load_table_table_exists_no_truncate as select 1 as col1")
+        self.db.load_table(
+                database_id="test_load_table",
+                schema_id="test",
+                table_id="test_load_table_table_exists_no_truncate",
+                query="select 2 as col1",
+                truncate=False              
+            )
+        expected_df = pd.DataFrame(data=[1,2], columns = ['col1'])
+        returned_df = self.db.query_exec(query="select * from test_load_table.test.test_load_table_table_exists_no_truncate", return_df=True)
+        df_assert_equal(expected_df, returned_df)
+    
+        
 class DBExecutorUtilities(unittest.TestCase):
 
     """ Test """
