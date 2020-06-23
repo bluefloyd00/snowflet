@@ -75,12 +75,12 @@ class PipelineExecutor:
         self.workers = workers
         self.kwargs = kwargs
         self.yaml = read_yaml_file(yaml_file)
-        self.dry_run_dataset_prefix = None
+        self.dry_run_database_prefix = None
         if dry_run:
-            self.dry_run_dataset_prefix = random.sample(range(1, 1000000000), 1)[0]
+            self.dry_run_database_prefix = random.sample(range(1, 1000000000), 1)[0]
             add_database_id_prefix(
                 obj=self.yaml,
-                prefix=self.dry_run_dataset_prefix,
+                prefix=self.dry_run_database_prefix,
                 kwargs=self.kwargs)
         logging_config()
 
@@ -118,4 +118,13 @@ class PipelineExecutor:
         for batch in batch_list:
             apply_kwargs(batch, self.kwargs)  ## resolve environment variable passed as kwargs
             self.run_batch(batch)
-        
+    
+
+    def clone_prod(self, with_data=False):
+        dabatase_list = self.yaml.get('databases', '')
+        for database in dabatase_list:
+            self.db.query_exec(
+                query= """ CREATE DATABASE {clone} CLONE {db} """,
+                clone=self.dry_run_database_prefix + "_" + database,
+                db=database
+            )

@@ -149,7 +149,8 @@ def add_database_id_prefix(obj, prefix, kwargs={}):
                 add_database_id_prefix(v, prefix, kwargs)
             else:
                 if k == 'database': 
-                    obj[k] =  str(prefix) + '_' + obj[k]
+                    if str(prefix) not in obj[k]:
+                        obj[k] =  str(prefix) + '_' + obj[k]
 
 
 def extract_args(content, to_extract: str, kwargs={}):
