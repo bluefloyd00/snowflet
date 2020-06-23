@@ -1,0 +1,13 @@
+PATH=${env:Path}:${workspaceFolder}                
+PROJECT_ROOT=${workspaceFolder}  
+PYTHON_INSTALL_LOC=${workspaceFolder}\\snowflet-venv\\Scripts  
+PYTHONPATH=${cwd}
+ACCOUNT= gs22761.west-europe.azure
+PASSWORD=Prova1234
+USER=SIMONEFIORENTINI
+DATABASE=SNOWFLAKE_SAMPLE_DATA
+SCHEMA=TPCH_SF10
+WAREHOUSE=
+ROLE=SYSADMIN
+TIMEZONE=europe/london
+   

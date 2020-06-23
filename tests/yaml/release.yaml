@@ -1,0 +1,12 @@
+desc: run the release and a query file which use the table created by the release
+databases: [test]
+release:
+- desc: environment set up (db, schema, table1)
+- file: tests/release/test_release.py
+batches:  
+- desc: create table2
+  tasks:     
+  - desc: create table1
+    object: query_executor
+    args:
+      query: CREATE TABLE TEST_RELEASE.TEST.table2 AS SELECT * FROM TEST_RELEASE.TEST.table1
