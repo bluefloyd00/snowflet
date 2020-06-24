@@ -167,9 +167,11 @@ class DBExecutor:
         else:
             return False
     
-    def list_tables(self, database_id, schema_id=default_schema):
+    def list_tables(self, database_id, schema_id=""):
         if schema_id=="":
-            sql = "SHOW TABLES IN  {db} "
+            sql = """select table_name as name
+                    from {db}.information_schema.tables
+                    where table_schema != 'INFORMATION_SCHEMA'"""
         else: 
             sql = "SHOW TABLES IN  {db}.{schema} "
 
