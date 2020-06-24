@@ -128,3 +128,5 @@ class PipelineExecutor:
                 clone=self.dry_run_database_prefix + "_" + database,
                 db=database
             )
+            if not with_data:
+                for table in self.db.query_exec()

@@ -6,6 +6,38 @@ import snowflet.pipeline as pl
 from snowflet.lib import logging_config
 
 
+class TestCloneDatabases(unittest.TestCase):
+    def setUp(self):
+        self.db = pl.db()
+        self.db.initiate_database_schema(database_id="DB1", schema_id='TEST1')
+        self.db.self.db.load_table(
+                database_id="DB1",
+                schema_id="TEST1",
+                table_id="table1",
+                query="select 1 as col1",
+                truncate=True              
+            )
+        self.db.initiate_database_schema(database_id="DB2", schema_id='TEST2')
+        self.db.self.db.load_table(
+                database_id="DB2",
+                schema_id="TEST2",
+                table_id="table2",
+                query="select 2 as col2",
+                truncate=True              
+            )
+
+        self.pipeline = pl.PipelineExecutor(
+            yaml_file="tests/yaml/run_batches.yaml",
+        )
+        self.pipeline.dry_run_database_prefix = 1001
+
+    def test_run_initiate_db_execute_query(self):
+        self.pipeline.clone_prod()
+        self.assertTrue(
+            self.pipeline.db.table_exists(database_id="TEST_RUN_BATCH", schema_id="TEST_SCHEMA", table_id="table1"),
+            "test_run_batch pipeline not properly run"
+            )
+
 class TestRun(unittest.TestCase):
     def setUp(self):
         self.pipeline = pl.PipelineExecutor("tests/yaml/run_batches.yaml")

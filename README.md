@@ -57,7 +57,7 @@ All the query file shall be compliant with the follow (including CTE for mock da
 
 **clone_prod() TBD** clone the prod db metadata <br />
 
-**clone_clean() TBD** removed the cloned databases <br />
+**clone_clean() TBD** remove the cloned databases <br />
 
 ### Usage
 - for running the Pipeline

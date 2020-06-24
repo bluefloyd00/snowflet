@@ -166,6 +166,21 @@ class DBExecutor:
             return True
         else:
             return False
+    
+    def list_tables(self, database_id, schema_id=default_schema):
+        if schema_id=="":
+            sql = "SHOW TABLES IN  {db} "
+        else: 
+            sql = "SHOW TABLES IN  {db}.{schema} "
+
+        result = self.query_exec(
+                    query=sql,
+                    return_df=True,
+                    db=database_id.upper(),
+                    schema=schema_id.upper()
+                )
+
+        return result['name'].values.tolist()
 
     def initiate_database_schema(self, database_id, schema_id):
         self.create_database(database_id=database_id)
