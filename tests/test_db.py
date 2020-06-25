@@ -85,14 +85,13 @@ class DBExecutorUtilities(unittest.TestCase):
 
         """ Test """
         self.db = db() 
-        self.db.create_database(database_id="test_utilities")
-        self.db.create_schema(database_id="test_utilities", schema_id="test")
+        self.db.initiate_database_schema(database_id="TEST_UTILITIES", schema_id="test")
         self.db.query_exec(query="""CREATE TABLE TEST_UTILITIES.TEST.table_list1 AS SELECT 1 as col1""")
         self.db.query_exec(query="""CREATE TABLE TEST_UTILITIES.TEST.table_list2 AS SELECT 1 as col1""")
 
     def tearDown(self):
         """ Test """
-        self.db.delete_database(database_id="test_utilities")
+        self.db.delete_database(database_id="TEST_UTILITIES")
         self.db.close()
     
     def test_list_table_with_schema(self):

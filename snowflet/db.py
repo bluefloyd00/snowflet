@@ -175,7 +175,7 @@ class DBExecutor:
         else: 
             sql = """   select TABLE_CATALOG || '.' || TABLE_SCHEMA || '.' || TABLE_NAME AS name
                         from {db}.information_schema.tables
-                        where table_schema == '{schema}' """  
+                        where table_schema = '{schema}' """  
                        
         result = self.query_exec(
                     query=sql,
