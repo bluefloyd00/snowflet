@@ -2,15 +2,19 @@ import time
 import logging
 import unittest
 # from unittest import mock
+import pandas as pd
 import snowflet.pipeline as pl
 from snowflet.lib import logging_config
+from snowflet.lib import df_assert_equal
+
 
 
 class TestCloneDatabases(unittest.TestCase):
+
     def setUp(self):
         self.db = pl.db()
         self.db.initiate_database_schema(database_id="DB1", schema_id='TEST1')
-        self.db.self.db.load_table(
+        self.db.load_table(
                 database_id="DB1",
                 schema_id="TEST1",
                 table_id="table1",
@@ -18,7 +22,7 @@ class TestCloneDatabases(unittest.TestCase):
                 truncate=True              
             )
         self.db.initiate_database_schema(database_id="DB2", schema_id='TEST2')
-        self.db.self.db.load_table(
+        self.db.load_table(
                 database_id="DB2",
                 schema_id="TEST2",
                 table_id="table2",
@@ -27,16 +31,34 @@ class TestCloneDatabases(unittest.TestCase):
             )
 
         self.pipeline = pl.PipelineExecutor(
-            yaml_file="tests/yaml/run_batches.yaml",
+            yaml_file="tests/yaml/clone.yaml",
         )
-        self.pipeline.dry_run_database_prefix = 1001
+        self.pipeline.dry_run_database_prefix = "CLONE_1001"
 
-    def test_run_initiate_db_execute_query(self):
-        self.pipeline.clone_prod()
+    def tearDown(self):
+        self.db = pl.db()
+        self.db.delete_database(database_id="DB1")
+        self.db.delete_database(database_id="DB2")
+        self.db.delete_database(database_id="CLONE_1001_DB1")
+        self.db.delete_database(database_id="CLONE_1001_DB2")
+        
+    def test_clone_with_data(self):
+        self.pipeline.clone_prod(with_data=True)
         self.assertTrue(
-            self.pipeline.db.table_exists(database_id="TEST_RUN_BATCH", schema_id="TEST_SCHEMA", table_id="table1"),
-            "test_run_batch pipeline not properly run"
+            self.pipeline.db.table_exists(database_id="CLONE_1001_DB1", schema_id="TEST1", table_id="TABLE1"),
+            "clone_without_data pipeline not properly run"
             )
+
+    def test_clone_without_data(self):
+        self.pipeline.clone_prod(with_data=False)
+       
+        result_df = self.pipeline.db.query_exec(
+            query=""" SELECT * FROM  CLONE_1001_DB2.TEST2.TABLE2 """,
+            result_df=True
+        )
+                
+        expected_df = pd.DataFrame([1], columns=['col2'])
+        df_assert_equal(expected_df, result_df)
 
 class TestRun(unittest.TestCase):
     def setUp(self):

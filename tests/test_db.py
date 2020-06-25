@@ -87,7 +87,8 @@ class DBExecutorUtilities(unittest.TestCase):
         self.db = db() 
         self.db.create_database(database_id="test_utilities")
         self.db.create_schema(database_id="test_utilities", schema_id="test")
-        
+        self.db.query_exec(query="""CREATE TABLE TEST_UTILITIES.TEST.table_list1 AS SELECT 1 as col1""")
+        self.db.query_exec(query="""CREATE TABLE TEST_UTILITIES.TEST.table_list2 AS SELECT 1 as col1""")
 
     def tearDown(self):
         """ Test """
@@ -95,25 +96,21 @@ class DBExecutorUtilities(unittest.TestCase):
         self.db.close()
     
     def test_list_table_with_schema(self):
-        self.db.query_exec(query="CREATE TABLE TEST_UTILITIES.TEST.table_list1 AS SELECT 1 as col1")
-        self.db.query_exec(query="CREATE TABLE TEST_UTILITIES.TEST.table_list2 AS SELECT 1 as col1")
         self.assertEqual(
            self.db.list_tables(
                 database_id="TEST_UTILITIES",
                 schema_id="TEST"
             ),
-            ["TABLE_LIST1", "TABLE_LIST2"],
+            ["TEST_UTILITIES.TEST.TABLE_LIST1", "TEST_UTILITIES.TEST.TABLE_LIST2"],
             "list_tables did not return expected result"
         )
 
     def test_list_table_without_schema(self):
-        self.db.query_exec(query="CREATE TABLE TEST_UTILITIES.TEST.table_list1 AS SELECT 1 as col1")
-        self.db.query_exec(query="CREATE TABLE TEST_UTILITIES.TEST.table_list2 AS SELECT 1 as col1")
         self.assertEqual(
             self.db.list_tables(
                 database_id="TEST_UTILITIES"
             ),
-            ["TABLE_LIST1", "TABLE_LIST2"],
+            ["TEST_UTILITIES.TEST.TABLE_LIST1", "TEST_UTILITIES.TEST.TABLE_LIST2"],
             "list_tables did not return expected result"
         )
 
