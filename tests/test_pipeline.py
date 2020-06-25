@@ -51,14 +51,12 @@ class TestCloneDatabases(unittest.TestCase):
 
     def test_clone_without_data(self):
         self.pipeline.clone_prod(with_data=False)
-       
         result_df = self.pipeline.db.query_exec(
             query=""" SELECT * FROM  CLONE_1001_DB2.TEST2.TABLE2 """,
-            result_df=True
+            return_df=True
         )
-                
-        expected_df = pd.DataFrame([1], columns=['col2'])
-        df_assert_equal(expected_df, result_df)
+             
+        self.assertTrue(result_df.dropna().empty)
 
 class TestRun(unittest.TestCase):
     def setUp(self):

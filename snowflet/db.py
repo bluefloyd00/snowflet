@@ -192,6 +192,10 @@ class DBExecutor:
         
 
     def query_exec(self,  file_query="", query="", return_df=False, *args, **kwargs):
+        try:
+            self.validate_connection()
+        except:
+            self.connect()
         result = None
         sql = read_sql(file_query, query, **kwargs)
         try:

@@ -129,9 +129,11 @@ class PipelineExecutor:
                 clone=clone_database,
                 db=database
             )
+            tables=self.db.list_tables(database_id=clone_database)
             if not with_data:
-                for table in self.db.list_tables(database_id=clone_database):
+                for table in tables:
+                    self.db.use_database(database_id=clone_database)
                     self.db.query_exec(
-                        query=""" TRUNCATE {table} """, 
+                        query=""" DELETE FROM {table} """, 
                         table=table
                     )
