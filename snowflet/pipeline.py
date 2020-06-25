@@ -77,7 +77,7 @@ class PipelineExecutor:
         self.yaml = read_yaml_file(yaml_file)
         self.dry_run_database_prefix = None
         if dry_run:
-            self.dry_run_database_prefix = random.sample(range(1, 1000000000), 1)[0]
+            self.dry_run_database_prefix = "CLONE_" + str(random.sample(range(1, 1000000000), 1)[0])
             add_database_id_prefix(
                 obj=self.yaml,
                 prefix=self.dry_run_database_prefix,
@@ -123,8 +123,17 @@ class PipelineExecutor:
     def clone_prod(self, with_data=False):
         dabatase_list = self.yaml.get('databases', '')
         for database in dabatase_list:
+            clone_database = str(self.dry_run_database_prefix) + "_" + database
             self.db.query_exec(
                 query= """ CREATE DATABASE {clone} CLONE {db} """,
-                clone=self.dry_run_database_prefix + "_" + database,
+                clone=clone_database,
                 db=database
             )
+            tables=self.db.list_tables(database_id=clone_database)
+            if not with_data:
+                for table in tables:
+                    self.db.use_database(database_id=clone_database)
+                    self.db.query_exec(
+                        query=""" DELETE FROM {table} """, 
+                        table=table
+                    )

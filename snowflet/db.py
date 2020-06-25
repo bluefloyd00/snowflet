@@ -89,7 +89,7 @@ class DBExecutor:
     def delete_database(self, database_id):
         if not self.database_exists(database_id):
             logging.info(
-                "Dataset %s does not exists",
+                "Database %s does not exists",
                 database_id
             )
         else:
@@ -166,6 +166,25 @@ class DBExecutor:
             return True
         else:
             return False
+    
+    def list_tables(self, database_id, schema_id=""):
+        if schema_id=="":
+            sql = """   select TABLE_CATALOG || '.' || TABLE_SCHEMA || '.' || TABLE_NAME AS name
+                        from {db}.information_schema.tables
+                        where table_schema != 'INFORMATION_SCHEMA'    """
+        else: 
+            sql = """   select TABLE_CATALOG || '.' || TABLE_SCHEMA || '.' || TABLE_NAME AS name
+                        from {db}.information_schema.tables
+                        where table_schema = '{schema}' """  
+                       
+        result = self.query_exec(
+                    query=sql,
+                    return_df=True,
+                    db=database_id.upper(),
+                    schema=schema_id.upper()
+                )
+
+        return result['name'].values.tolist()
 
     def initiate_database_schema(self, database_id, schema_id):
         self.create_database(database_id=database_id)
@@ -173,6 +192,10 @@ class DBExecutor:
         
 
     def query_exec(self,  file_query="", query="", return_df=False, *args, **kwargs):
+        try:
+            self.validate_connection()
+        except:
+            self.connect()
         result = None
         sql = read_sql(file_query, query, **kwargs)
         try:

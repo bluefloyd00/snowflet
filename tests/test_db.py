@@ -4,6 +4,9 @@ import pandas as pd
 import unittest
 from snowflet.lib import df_assert_equal
 
+
+
+
 class DBLoadTable(unittest.TestCase):
 
     """ Test """
@@ -82,15 +85,34 @@ class DBExecutorUtilities(unittest.TestCase):
 
         """ Test """
         self.db = db() 
-        self.db.create_database(database_id="test_utilities")
-        self.db.create_schema(database_id="test_utilities", schema_id="test")
-        
+        self.db.initiate_database_schema(database_id="TEST_UTILITIES", schema_id="test")
+        self.db.query_exec(query="""CREATE TABLE TEST_UTILITIES.TEST.table_list1 AS SELECT 1 as col1""")
+        self.db.query_exec(query="""CREATE TABLE TEST_UTILITIES.TEST.table_list2 AS SELECT 1 as col1""")
 
     def tearDown(self):
         """ Test """
-        self.db.delete_database(database_id="test_utilities")
+        self.db.delete_database(database_id="TEST_UTILITIES")
         self.db.close()
-       
+    
+    def test_list_table_with_schema(self):
+        self.assertEqual(
+           self.db.list_tables(
+                database_id="TEST_UTILITIES",
+                schema_id="TEST"
+            ),
+            ["TEST_UTILITIES.TEST.TABLE_LIST1", "TEST_UTILITIES.TEST.TABLE_LIST2"],
+            "list_tables did not return expected result"
+        )
+
+    def test_list_table_without_schema(self):
+        self.assertEqual(
+            self.db.list_tables(
+                database_id="TEST_UTILITIES"
+            ),
+            ["TEST_UTILITIES.TEST.TABLE_LIST1", "TEST_UTILITIES.TEST.TABLE_LIST2"],
+            "list_tables did not return expected result"
+        )
+
     def test_table_exists(self):
         self.db.query_exec(query="CREATE TABLE TEST_UTILITIES.TEST.table2 AS SELECT 1 as col1")
         self.assertTrue(
