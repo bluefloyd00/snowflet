@@ -1,5 +1,5 @@
-import pandas as pd
 import logging
+import pandas as pd
 # from snowflake.sqlalchemy import URL
 from sqlalchemy import create_engine   
 from snowflet.lib import read_sql
@@ -11,6 +11,7 @@ from snowflet.lib import default_database
 from snowflet.lib import default_password
 from snowflet.lib import default_timezone
 from snowflet.lib import default_warehouse
+
 
 
 class DBExecutor:
@@ -96,7 +97,7 @@ class DBExecutor:
             try:
                 
                 self.query_exec(
-                        query="DROP DATABASE {db}",
+                        query="DROP DATABASE "{db}",
                         db=database_id
                     )
                 logging.info(
@@ -116,12 +117,34 @@ class DBExecutor:
         else:
             try:
                 self.query_exec(
-                    query="CREATE SCHEMA {db}.{schema}",
+                    query="CREATE SCHEMA "{db}"."{schema}",
                     db=database_id,
                     schema=schema_id
                 )
                 logging.info(
                     "Created schema: %s.%s",
+                    database_id,
+                    schema_id
+                )
+            except Exception as error:
+                logging.error(error)
+
+    def delete_schema(self, schema_id, database_id=default_database):
+        if not self.schema_exists(database_id=database_id, schema_id=schema_id):
+            logging.info(
+                "Schema %s.%s does not exists",
+                database_id,
+                schema_id
+            )
+        else:
+            try:
+                self.query_exec(
+                    query="DROP SCHEMA "{db}"."{schema}",
+                    db=database_id,
+                    schema=schema_id
+                )
+                logging.info(
+                    "Dropped schema: %s.%s",
                     database_id,
                     schema_id
                 )
@@ -143,7 +166,7 @@ class DBExecutor:
 
     def schema_exists(self, schema_id, database_id):
         result = self.query_exec(
-                    query="SHOW SCHEMAS IN DATABASE {db}",
+                    query="SHOW SCHEMAS IN DATABASE "{db}",
                     return_df=True,
                     db=database_id
                 )
@@ -156,7 +179,7 @@ class DBExecutor:
     def table_exists(self, database_id, schema_id, table_id):
 
         result = self.query_exec(
-                    query="SHOW TABLES IN  {db}.{schema} ",
+                    query="SHOW TABLES IN  "{db}"."{schema}",
                     return_df=True,
                     db=database_id.upper(),
                     schema=schema_id.upper()
@@ -189,7 +212,6 @@ class DBExecutor:
     def initiate_database_schema(self, database_id, schema_id):
         self.create_database(database_id=database_id)
         self.create_schema(schema_id=schema_id,database_id=database_id)
-        
 
     def query_exec(self,  file_query="", query="", return_df=False, *args, **kwargs):
         try:
@@ -251,14 +273,14 @@ class DBExecutor:
             if ddl_file is not None:
                 self.query_exec(read_sql(file=ddl_file)) # create the table
             else:
-                sql_part_1 = """ CREATE TABLE {}.{}.{} AS """.format(database_id, schema_id, table_id) # define first part
+                sql_part_1 = """ CREATE TABLE "{}"."{}"."{}" AS """.format(database_id, schema_id, table_id) # define first part
         else:
             logging.info("TBD: assert on ddl table vs ddl file")
             # self.is_table_schema_vs_ddl(table_id, ddl_file)  # IF THE TABLE SCHEMA IS DIFFERENT FROM THE DDL RAISE AN ERROR
             overwrite = ""
             if truncate:
                 overwrite = " OVERWRITE "        
-            sql_part_1 = """ INSERT {} INTO {}.{}.{}  """.format(overwrite, database_id, schema_id, table_id)
+            sql_part_1 = """ INSERT "{}" INTO "{}"."{}"."{}"  """.format(overwrite, database_id, schema_id, table_id)
 
         
         if df != "":

@@ -1,6 +1,7 @@
 import os
 import logging
 import pandas 
+import sql_metadata
 from pandas._testing import assert_frame_equal
 import unittest
 
@@ -24,6 +25,7 @@ def print_kwargs_params(func):
         return func(*args, **kwargs)
     return inner
 
+
 def forbiden_kwargs():
     return ['list_of_dedicated_keywords']
 
@@ -32,8 +34,23 @@ class SafeDict(dict):
     def __missing__(self, key):
         return '{' + key + '}'
 
-def extract_tables(sql):
-    return  [ x.replace('"', '') for x in sql.split(" ") if x.count(".") == 2 ] 
+def  add_table_prefix_to_sql(sql, prefix):
+    query = sql
+    for word in query.split(" "):
+        if is_table(word, query) and prefix not in word:
+            table = word
+            db_prefixed =  prefix + "_" + word.split(".")[0].replace('"', '') 
+            table = table.replace(word.split(".")[0], '"' + db_prefixed + '"' )            
+            query = query.replace(word, table)
+    return query
+
+
+def is_table(word, sql):
+    if word.replace('"','') in sql_metadata.get_query_tables(sql):
+        return True
+    else:
+        return False
+
 
 @print_kwargs_params
 def read_sql(file='', query="", *args, **kwargs):
@@ -151,7 +168,7 @@ def add_database_id_prefix(obj, prefix, kwargs={}):
                 apply_kwargs(v, kwargs)
                 add_database_id_prefix(v, prefix, kwargs)
             else:
-                if k == 'database': 
+                if k == 'database_id': 
                     if str(prefix) not in obj[k]:
                         obj[k] =  str(prefix) + '_' + obj[k]
 

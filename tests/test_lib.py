@@ -7,8 +7,8 @@ from snowflet.lib import apply_kwargs
 from snowflet.lib import strip_table
 from snowflet.lib import extract_tables_from_query
 from snowflet.lib import add_database_id_prefix
-from snowflet.lib import extract_tables
-
+from snowflet.lib import is_table
+from snowflet.lib import add_table_prefix_to_sql
 
 
 class StringFunctions(unittest.TestCase):
@@ -30,14 +30,40 @@ class StringFunctions(unittest.TestCase):
 
 class TableFunctions(unittest.TestCase):
     """ Test """
-    def test_extract_tables(self):
+    def test_is_table(self):
+        self.assertTrue( 
+            is_table( word='"db"."test"."table1"' ,sql=""" select a.* from "db"."test"."table1"  a left join db.test.table2 b on a.id=b.id left join db."test".table3 c on b.id = c.id """),
+            "select: ok"
+        )
+        self.assertTrue( 
+            is_table( word='"db"."test"."table4"' ,sql=""" create table "db"."test"."table4" as select a.* from "db"."test"."table1"  a left join db.test.table2 b on a.id=b.id left join db."test".table3 c on b.id = c.id """),
+            "create - select: ok"
+        )
+
+    def test_add_table_prefix_to_sql(self):
         self.assertEqual( 
-            extract_tables(""" select a.* from "db"."test"."table1" and db.test.table2 and db."test".table3 """),
-            ["db.test.table1", "db.test.table2", "db.test.table3"],
-            "multiple tables, mix double quotes and not"
+            add_table_prefix_to_sql(  
+                sql=""" select a.* from "db1"."test"."table1"  a left join db2.test.table2 b on a.id=b.id left join db3."test".table3 c on b.id = c.id """,
+                prefix="CLONE_1003"
+            ),
+            """ select a.* from "CLONE_1003_db1"."test"."table1"  a left join "CLONE_1003_db2".test.table2 b on a.id=b.id left join "CLONE_1003_db3"."test".table3 c on b.id = c.id """,
+            "quert: ok"
         )
         
 
+    # def test_extract_tables(self):
+    #     self.assertEqual( 
+    #         extract_tables(""" select a.* from "db"."test"."table1" and db.test.table2 and db."test".table3 """),
+    #         ["db.test.table1", "db.test.table2", "db.test.table3"],
+    #         "multiple tables, mix double quotes and not"
+    #     )
+    #     self.assertEqual( 
+    #         extract_tables(""" select a.* from "db"."test"."table1" and db.test.table2 and db."test".table1 """),
+    #         ["db.test.table1", "db.test.table2"],
+    #         "returned unique values"
+    #     )
+
+        
 
 
 class ReadSql(unittest.TestCase):
@@ -159,14 +185,14 @@ class FunctionsInLib(unittest.TestCase):
                                 "table_desc": "table1",
                                 "create_table": {
                                     "table_id": "table1",
-                                    "database": "test",              
+                                    "database_id": "test",              
                                 },                      
                             },
                             {
                                 "table_desc": "table2",
                                 "create_table": {
                                     "table_id": "table2",
-                                    "database": "test",                                    
+                                    "database_id": "test",                                    
                                 },                                    
                             }
                         ]
@@ -186,14 +212,14 @@ class FunctionsInLib(unittest.TestCase):
                             "table_desc": "table1",
                             "create_table": {
                                 "table_id": "table1",
-                                "database": "1234_test",              
+                                "database_id": "1234_test",              
                             },                      
                         },
                         {
                             "table_desc": "table2",
                             "create_table": {
                                 "table_id": "table2",
-                                "database": "1234_test",                                    
+                                "database_id": "1234_test",                                    
                             },                                    
                         }
                     ]                

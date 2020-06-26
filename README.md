@@ -14,8 +14,8 @@ Why in Snowflet L comes before E? I really like the sound of Snowflet
 "TIMEZONE": "europe/london"                    # OPTIONAL
 ```
 
-
-
+## important
+- in sql queries database and schema shall always be esplicit i.e. "database"."schema.table", "database"."schema"
 
 ## *class* snowflet.db.DBExecutor() <br />
 Snowflake API wrapper <br />

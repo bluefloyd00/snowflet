@@ -85,12 +85,18 @@ class PipelineExecutor:
         logging_config()
 
     def select_object(self, obj_name):
-        if obj_name == 'query_executor':
-            return self.db.query_exec
+        # if obj_name == 'query_executor':
+        #     return self.db.query_exec
         if obj_name == 'initiate_database_schema':
             return self.db.initiate_database_schema
         if obj_name == 'dop_database':
             return self.db.delete_database
+        if obj_name == 'load_table':
+            return self.db.load_table
+        if obj_name == 'create_database':
+            return self.db.create_database
+        if obj_name == 'create_schema':
+            return self.db.create_schema
         else:
             raise Exception("No matching object")
 
