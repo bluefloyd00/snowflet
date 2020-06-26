@@ -33,7 +33,7 @@ class TestCloneDatabases(unittest.TestCase):
         self.pipeline = pl.PipelineExecutor(
             yaml_file="tests/yaml/clone.yaml",
         )
-        self.pipeline.dry_run_database_prefix = "CLONE_1001"
+        self.pipeline.clone_database_prefix = "CLONE_1001"
 
     def tearDown(self):
         self.db = pl.db()

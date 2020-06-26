@@ -7,6 +7,7 @@ from snowflet.lib import apply_kwargs
 from snowflet.lib import strip_table
 from snowflet.lib import extract_tables_from_query
 from snowflet.lib import add_database_id_prefix
+from snowflet.lib import extract_tables
 
 
 
@@ -26,6 +27,17 @@ class StringFunctions(unittest.TestCase):
             [  '"db"."schema"."table"',  'db.schema.table' ],
             "does not extract the tables properly"
         )
+
+class TableFunctions(unittest.TestCase):
+    """ Test """
+    def test_extract_tables(self):
+        self.assertEqual( 
+            extract_tables(""" select a.* from "db"."test"."table1" and db.test.table2 and db."test".table3 """),
+            ["db.test.table1", "db.test.table2", "db.test.table3"],
+            "multiple tables, mix double quotes and not"
+        )
+        
+
 
 
 class ReadSql(unittest.TestCase):

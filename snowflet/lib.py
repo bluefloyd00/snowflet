@@ -32,6 +32,9 @@ class SafeDict(dict):
     def __missing__(self, key):
         return '{' + key + '}'
 
+def extract_tables(sql):
+    return  [ x.replace('"', '') for x in sql.split(" ") if x.count(".") == 2 ] 
+
 @print_kwargs_params
 def read_sql(file='', query="", *args, **kwargs):
     ''' Read SQL file and apply arguments/keywors arguments.
@@ -66,7 +69,7 @@ def read_sql(file='', query="", *args, **kwargs):
         file.close()
     
     # ********* to be changed for the dry run ************** 
-    if kwargs.get('dry_run_dataset_prefix', None) is not None:
+    if kwargs.get('clone_database_prefix', None) is not None:
         for index, dataset in enumerate(sql.split("`")):
             if index%2==1 and "." in dataset:
                 sql = sql.replace(
