@@ -97,7 +97,7 @@ class DBExecutor:
             try:
                 
                 self.query_exec(
-                        query="DROP DATABASE "{db}",
+                        query="DROP DATABASE {db}",
                         db=database_id
                     )
                 logging.info(
@@ -117,7 +117,7 @@ class DBExecutor:
         else:
             try:
                 self.query_exec(
-                    query="CREATE SCHEMA "{db}"."{schema}",
+                    query="CREATE SCHEMA {db}.{schema}",
                     db=database_id,
                     schema=schema_id
                 )
@@ -139,7 +139,7 @@ class DBExecutor:
         else:
             try:
                 self.query_exec(
-                    query="DROP SCHEMA "{db}"."{schema}",
+                    query="DROP SCHEMA {db}.{schema}",
                     db=database_id,
                     schema=schema_id
                 )
@@ -166,7 +166,7 @@ class DBExecutor:
 
     def schema_exists(self, schema_id, database_id):
         result = self.query_exec(
-                    query="SHOW SCHEMAS IN DATABASE "{db}",
+                    query="SHOW SCHEMAS IN DATABASE {db}",
                     return_df=True,
                     db=database_id
                 )
@@ -179,7 +179,7 @@ class DBExecutor:
     def table_exists(self, database_id, schema_id, table_id):
 
         result = self.query_exec(
-                    query="SHOW TABLES IN  "{db}"."{schema}",
+                    query="SHOW TABLES IN  {db}.{schema}",
                     return_df=True,
                     db=database_id.upper(),
                     schema=schema_id.upper()

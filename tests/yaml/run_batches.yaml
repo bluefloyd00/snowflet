@@ -11,8 +11,13 @@ batches:
 - desc: create table1
   tasks:     
   - desc: create table1
-    object: query_executor
+    object: load_table
     args:
-      query: CREATE TABLE TEST_RUN_BATCH.TEST_SCHEMA.table1 AS SELECT 1 AS COL1, 'B' as COL2
+      database_id: TEST_RUN_BATCH 
+      schema_id: TEST_SCHEMA 
+      table_id: TABLE1 
+      truncate: True
+      query: SELECT 1 AS COL1, 'B' as COL2
 
+        
     

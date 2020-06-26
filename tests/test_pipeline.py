@@ -17,7 +17,7 @@ class TestCloneDatabases(unittest.TestCase):
         self.db.load_table(
                 database_id="DB1",
                 schema_id="TEST1",
-                table_id="table1",
+                table_id="TABLE1",
                 query="select 1 as col1",
                 truncate=True              
             )
@@ -25,7 +25,7 @@ class TestCloneDatabases(unittest.TestCase):
         self.db.load_table(
                 database_id="DB2",
                 schema_id="TEST2",
-                table_id="table2",
+                table_id="TABLE2",
                 query="select 2 as col2",
                 truncate=True              
             )
@@ -82,24 +82,24 @@ class TestTask(unittest.TestCase):
         tasks = [   
             {
                 "desc": "running first task",
-                "object": 'query_executor',
+                "object": 'load_table',
                 "args": {"num": 1}
             },
             {
                 "desc": "running second task",
-                "object": 'query_executor',
+                "object": 'load_table',
                 "args": {"num": 2}
             }
         ]
         expected_result = [   
             {
                 "desc": "running first task",
-                "object": self.pipeline.db.query_exec,
+                "object": self.pipeline.db.load_table,
                 "args": {"num": 1}
             },
             {
                 "desc": "running second task",
-                "object": self.pipeline.db.query_exec,
+                "object": self.pipeline.db.load_table,
                 "args": {"num": 2}
             }
         ]
