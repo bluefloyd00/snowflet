@@ -4,3 +4,4 @@ pandas
 nltk
 PyYAML
 versioneer
+sql_metadata

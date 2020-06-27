@@ -11,6 +11,7 @@ from snowflet.lib import default_database
 from snowflet.lib import default_password
 from snowflet.lib import default_timezone
 from snowflet.lib import default_warehouse
+from snowflet.lib import uppercase_parameters
 
 
 
@@ -56,23 +57,49 @@ class DBExecutor:
         results = self.connection.execute('select current_version()').fetchone()
         return results
 
-    def check_connection_args(self, database, schema):
+    @uppercase_parameters
+    def check_connection_args(self, database, schema, *args, **kwargs):
         if database != self.database or schema != self.schema:
             self.database = database
             self.schema = schema
             self.connect()
     
-    def create_database(self, database_id):
+    @uppercase_parameters
+    def clone_database(self, database_id, clone_prefix, *args, **kwargs):
+        if not self.database_exists(database_id):
+            logging.info(
+                "Database %s does not exists",
+                database_id
+            )
+        else:
+            try:
+                clone_database = clone_prefix + "_" + database_id
+                self.query_exec(
+                    query= """ CREATE DATABASE {clone} CLONE {db} """,
+                    clone=clone_database,
+                    db=database_id,                
+                    **kwargs
+                )
+                logging.info(
+                    "Cloned database: %s",
+                    database_id
+                )
+            except Exception as error:
+                logging.error(error)
+
+    @uppercase_parameters
+    def create_database(self, database_id, *args, **kwargs):
         if self.database_exists(database_id):
             logging.info(
-                "Dataset %s already exists",
+                "Database %s already exists",
                 database_id
             )
         else:
             try:
                 self.query_exec(
                     query="CREATE DATABASE {db}",
-                    db=database_id
+                    db=database_id,
+                    **kwargs
                 )
                 logging.info(
                     "Created database: %s",
@@ -80,14 +107,17 @@ class DBExecutor:
                 )
             except Exception as error:
                 logging.error(error)
-        
-    def use_database(self, database_id):
+    
+    @uppercase_parameters
+    def use_database(self, database_id, *args, **kwargs):
         self.query_exec(
                 query="USE DATABASE  {db}",
-                db=database_id
+                db=database_id,
+                **kwargs
             )
 
-    def delete_database(self, database_id):
+    @uppercase_parameters
+    def delete_database(self, database_id, *args, **kwargs):
         if not self.database_exists(database_id):
             logging.info(
                 "Database %s does not exists",
@@ -98,7 +128,8 @@ class DBExecutor:
                 
                 self.query_exec(
                         query="DROP DATABASE {db}",
-                        db=database_id
+                        db=database_id,
+                        **kwargs
                     )
                 logging.info(
                     "Dropped database: %s",
@@ -107,7 +138,8 @@ class DBExecutor:
             except Exception as error:
                 logging.error(error)
 
-    def create_schema(self, schema_id, database_id=default_database):
+    @uppercase_parameters
+    def create_schema(self, schema_id, database_id=default_database(), *args, **kwargs):
         if self.schema_exists(database_id=database_id, schema_id=schema_id):
             logging.info(
                 "Schema %s.%s already exists",
@@ -119,7 +151,8 @@ class DBExecutor:
                 self.query_exec(
                     query="CREATE SCHEMA {db}.{schema}",
                     db=database_id,
-                    schema=schema_id
+                    schema=schema_id,
+                    **kwargs
                 )
                 logging.info(
                     "Created schema: %s.%s",
@@ -129,7 +162,8 @@ class DBExecutor:
             except Exception as error:
                 logging.error(error)
 
-    def delete_schema(self, schema_id, database_id=default_database):
+    @uppercase_parameters
+    def delete_schema(self, schema_id, database_id=default_database(), *args, **kwargs):
         if not self.schema_exists(database_id=database_id, schema_id=schema_id):
             logging.info(
                 "Schema %s.%s does not exists",
@@ -141,7 +175,8 @@ class DBExecutor:
                 self.query_exec(
                     query="DROP SCHEMA {db}.{schema}",
                     db=database_id,
-                    schema=schema_id
+                    schema=schema_id,
+                    **kwargs
                 )
                 logging.info(
                     "Dropped schema: %s.%s",
@@ -151,12 +186,13 @@ class DBExecutor:
             except Exception as error:
                 logging.error(error)
         
-
-    def database_exists(self, database_id):
+    @uppercase_parameters
+    def database_exists(self, database_id, *args, **kwargs):
 
         result = self.query_exec(
                     query="SHOW DATABASES",
-                    return_df=True
+                    return_df=True,
+                    **kwargs
                 )
 
         if database_id.upper() in result['name'].values.tolist():
@@ -164,11 +200,13 @@ class DBExecutor:
         else:
             return False
 
-    def schema_exists(self, schema_id, database_id):
+    @uppercase_parameters
+    def schema_exists(self, schema_id, database_id, *args, **kwargs):
         result = self.query_exec(
                     query="SHOW SCHEMAS IN DATABASE {db}",
                     return_df=True,
-                    db=database_id
+                    db=database_id,
+                    **kwargs
                 )
 
         if schema_id.upper() in result['name'].values.tolist():
@@ -176,13 +214,15 @@ class DBExecutor:
         else:
             return False
 
-    def table_exists(self, database_id, schema_id, table_id):
+    @uppercase_parameters
+    def table_exists(self, database_id, schema_id, table_id, *args, **kwargs):
 
         result = self.query_exec(
                     query="SHOW TABLES IN  {db}.{schema}",
                     return_df=True,
                     db=database_id.upper(),
-                    schema=schema_id.upper()
+                    schema=schema_id.upper(),
+                    **kwargs
                 )
 
         if table_id.upper() in result['name'].values.tolist():
@@ -190,7 +230,10 @@ class DBExecutor:
         else:
             return False
     
-    def list_tables(self, database_id, schema_id=""):
+    @uppercase_parameters
+    def list_tables(self, database_id, schema_id="", *args, **kwargs):
+        if not self.database_exists(database_id=database_id):
+            return []
         if schema_id=="":
             sql = """   select TABLE_CATALOG || '.' || TABLE_SCHEMA || '.' || TABLE_NAME AS name
                         from {db}.information_schema.tables
@@ -204,15 +247,18 @@ class DBExecutor:
                     query=sql,
                     return_df=True,
                     db=database_id.upper(),
-                    schema=schema_id.upper()
+                    schema=schema_id.upper(),
+                    **kwargs
                 )
 
         return result['name'].values.tolist()
 
-    def initiate_database_schema(self, database_id, schema_id):
-        self.create_database(database_id=database_id)
-        self.create_schema(schema_id=schema_id,database_id=database_id)
+    @uppercase_parameters
+    def initiate_database_schema(self, database_id, schema_id, *args, **kwargs):
+        self.create_database(database_id=database_id, **kwargs)
+        self.create_schema(schema_id=schema_id,database_id=database_id, **kwargs)
 
+    @uppercase_parameters
     def query_exec(self,  file_query="", query="", return_df=False, *args, **kwargs):
         try:
             self.validate_connection()
@@ -244,7 +290,7 @@ class DBExecutor:
     #     )
     #     assert string.join(ddl_returned.fetchall()) == ddl
 
-
+    @uppercase_parameters
     def load_table(
         self, 
         database_id, 
@@ -271,7 +317,10 @@ class DBExecutor:
         ):
             # table does not exist
             if ddl_file is not None:
-                self.query_exec(read_sql(file=ddl_file)) # create the table
+                self.query_exec(
+                    query=read_sql(file=ddl_file),
+                    **kwargs
+                ) # create the table
             else:
                 sql_part_1 = """ CREATE TABLE "{}"."{}"."{}" AS """.format(database_id, schema_id, table_id) # define first part
         else:
@@ -280,7 +329,7 @@ class DBExecutor:
             overwrite = ""
             if truncate:
                 overwrite = " OVERWRITE "        
-            sql_part_1 = """ INSERT "{}" INTO "{}"."{}"."{}"  """.format(overwrite, database_id, schema_id, table_id)
+            sql_part_1 = """ INSERT {} INTO {}.{}.{}  """.format(overwrite, database_id, schema_id, table_id)
 
         
         if df != "":

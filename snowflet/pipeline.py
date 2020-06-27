@@ -82,7 +82,7 @@ class PipelineExecutor:
                 obj=self.yaml,
                 prefix=self.clone_database_prefix,
                 kwargs=self.kwargs)
-        logging_config()
+        
 
     def select_object(self, obj_name):
         # if obj_name == 'query_executor':
@@ -105,6 +105,9 @@ class PipelineExecutor:
             for key_, value_ in task.items():
                 if key_ == 'object':
                     task.update({key_: self.select_object(value_)})
+            
+            task['args'].update(self.kwargs)
+            task['args'].update({'clone_database_prefix' : self.clone_database_prefix})
 
     def run_batch(self, batch):
         tasks = batch.get('tasks', '')
@@ -125,15 +128,20 @@ class PipelineExecutor:
             apply_kwargs(batch, self.kwargs)  ## resolve environment variable passed as kwargs
             self.run_batch(batch)
     
-
-    def clone_prod(self, with_data=False):
+    def clone_clean(self):
         dabatase_list = self.yaml.get('databases', '')
         for database in dabatase_list:
             clone_database = str(self.clone_database_prefix) + "_" + database
-            self.db.query_exec(
-                query= """ CREATE DATABASE {clone} CLONE {db} """,
-                clone=clone_database,
-                db=database
+            if "CLONE_" in clone_database:
+                self.db.delete_database(clone_database)
+
+    def clone_prod(self, with_data=True):
+        dabatase_list = self.yaml.get('databases', '')
+        for database in dabatase_list:
+            clone_database = str(self.clone_database_prefix) + "_" + database
+            self.db.clone_database(
+                database_id=database,
+                clone_prefix=self.clone_database_prefix
             )
             tables=self.db.list_tables(database_id=clone_database)
             if not with_data:
