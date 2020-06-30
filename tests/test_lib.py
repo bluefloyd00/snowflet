@@ -46,8 +46,8 @@ class TableFunctions(unittest.TestCase):
                 sql=""" select a.* from "db1"."test"."table1"  a left join db2.test.table2 b on a.id=b.id left join db3."test".table3 c on b.id = c.id """,
                 prefix="CLONE_1003"
             ),
-            """ select a.* from "CLONE_1003_db1"."test"."table1"  a left join "CLONE_1003_db2".test.table2 b on a.id=b.id left join "CLONE_1003_db3"."test".table3 c on b.id = c.id """,
-            "quert: ok"
+            """ select a.* from "CLONE_1003_DB1"."TEST"."TABLE1"  a left join "CLONE_1003_DB2".TEST.TABLE2 b on a.id=b.id left join "CLONE_1003_DB3"."TEST".TABLE3 c on b.id = c.id """,
+            "add_table_prefix_to_sql: ok"
         )
         
 
@@ -77,23 +77,23 @@ class ReadSql(unittest.TestCase):
             param3="shipped_date",
             param4='trying'
         )
-        self.assertEqual(
-            sql,
-            'select type, shipped_date from "db_test"."schema_test"."table1" where amount > 300',
-            "read_sql unit test"
-        )
+        # self.assertEqual(
+        #     sql,
+        #     'select type, shipped_date from "DB_TEST"."SCHEMA_TEST"."TABLE1" where amount > 300',
+        #     "read_sql unit test"
+        # )
         sql = read_sql(
             file="tests/sql/read_sql.sql"
             )
         self.assertTrue(
-            sql == 'select {param1}, {param3} from "db_test"."schema_test"."table1" where amount > {param2}',
-            "read_sql unit test no opt parameters"
+            sql == 'select {param1}, {param3} from "DB_TEST"."SCHEMA_TEST"."TABLE1" where amount > {param2}',
+            "read_sql file unit test no opt parameters"
         )
 
         with self.assertRaises(KeyError):
             read_sql(
                 file="tests/sql/read_sql.sql",
-                list_of_dedicated_keywords='20200101'
+                database_id='something'
             )
 
     def test_class_read_sql_query(self):        
@@ -107,21 +107,22 @@ class ReadSql(unittest.TestCase):
         )
         self.assertEqual(
             sql,
-            'select type, shipped_date from "db_test"."schema_test"."table1" where amount > 300',
+            'select type, shipped_date from "DB_TEST"."SCHEMA_TEST"."TABLE1" where amount > 300',
             "read_sql unit test"
         )
         sql = read_sql(
             file="tests/sql/read_sql.sql"
             )
         self.assertTrue(
-            sql == 'select {param1}, {param3} from "db_test"."schema_test"."table1" where amount > {param2}',
-            "read_sql unit test no opt parameters"
+            sql == 'select {param1}, {param3} from "DB_TEST"."SCHEMA_TEST"."TABLE1" where amount > {param2}',
+            "read_sql query unit test no opt parameters"
         )
 
         with self.assertRaises(KeyError):
             read_sql(
                 file="tests/sql/read_sql.sql",
-                list_of_dedicated_keywords='20200101'
+                database_id='something'
+
             )
 
 class FunctionsInLib(unittest.TestCase):

@@ -36,12 +36,19 @@ def uppercase_parameters(func):
 
 
 def forbiden_kwargs():
-    return ['database_id', 'schema_id', 'table_id', 'query_file', 'query', 'sql', 'sql_file']
+    return ['database_id', 'schema_id', 'table_id']
 
 
 class SafeDict(dict):
     def __missing__(self, key):
         return '{' + key + '}'
+
+def uppercase_table(sql):
+    query = sql
+    for word in sql.split(" "):
+        if is_table(word, query):
+            query = query.replace(word, word.upper())
+    return query
 
 def add_table_prefix_to_sql(sql, prefix):
     query = sql
@@ -98,6 +105,8 @@ def read_sql(file='', query="", *args, **kwargs):
 
     if (kwargs.get('clone_database_prefix', None) is not None) and ("CLONE " not in sql):
         sql = add_table_prefix_to_sql(sql=sql, prefix=kwargs.get('clone_database_prefix', ''))
+    else:
+        sql = uppercase_table(sql=sql)
         
     return sql
 
