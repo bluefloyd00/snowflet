@@ -1,6 +1,7 @@
 import os
 import logging
 import pandas 
+import sql_metadata
 from pandas._testing import assert_frame_equal
 import unittest
 
@@ -24,13 +25,47 @@ def print_kwargs_params(func):
         return func(*args, **kwargs)
     return inner
 
+def uppercase_parameters(func):
+    def inner(*args, **kwargs):
+        logging.info("Uppercase fields: database_id, schema_id, table_id")
+        for key, value in kwargs.items():
+            if key in ['database_id', 'schema_id', 'table_id']:
+                kwargs[key] = value.upper()
+        return func(*args, **kwargs)
+    return inner
+
+
 def forbiden_kwargs():
-    return ['list_of_dedicated_keywords']
+    return ['database_id', 'schema_id', 'table_id']
 
 
 class SafeDict(dict):
     def __missing__(self, key):
         return '{' + key + '}'
+
+def uppercase_table(sql):
+    query = sql
+    for word in sql.split(" "):
+        if is_table(word, query):
+            query = query.replace(word, word.upper())
+    return query
+
+def add_table_prefix_to_sql(sql, prefix):
+    query = sql
+    for word in query.split(" "):
+        if is_table(word, query) and prefix not in word:
+            table = word
+            db_prefixed =  prefix + "_" + word.split(".")[0].replace('"', '') 
+            table = table.replace(word.split(".")[0], '"' + db_prefixed + '"' ).upper()           
+            query = query.replace(word, table)
+    return query
+
+
+def is_table(word, sql):
+    if word.replace('"','') in sql_metadata.get_query_tables(sql):
+        return True
+    else:
+        return False
 
 @print_kwargs_params
 def read_sql(file='', query="", *args, **kwargs):
@@ -64,19 +99,15 @@ def read_sql(file='', query="", *args, **kwargs):
         file = open(path_to_file, 'r')
         sql = file.read()
         file.close()
-    
-    # ********* to be changed for the dry run ************** 
-    if kwargs.get('dry_run_dataset_prefix', None) is not None:
-        for index, dataset in enumerate(sql.split("`")):
-            if index%2==1 and "." in dataset:
-                sql = sql.replace(
-                    "`" + sql.split("`")[index] + "`",
-                    "`" + str(kwargs.get('dry_run_dataset_prefix', None)) + "_" +  sql.split("`")[index] + "`",
-                    1
-                )
 
     if len(kwargs) > 0:
         sql = sql.format_map(SafeDict(**kwargs))
+
+    if (kwargs.get('clone_database_prefix', None) is not None) and ("CLONE " not in sql):
+        sql = add_table_prefix_to_sql(sql=sql, prefix=kwargs.get('clone_database_prefix', ''))
+    else:
+        sql = uppercase_table(sql=sql)
+        
     return sql
 
 def logging_config():
@@ -148,7 +179,7 @@ def add_database_id_prefix(obj, prefix, kwargs={}):
                 apply_kwargs(v, kwargs)
                 add_database_id_prefix(v, prefix, kwargs)
             else:
-                if k == 'database': 
+                if k == 'database_id': 
                     if str(prefix) not in obj[k]:
                         obj[k] =  str(prefix) + '_' + obj[k]
 

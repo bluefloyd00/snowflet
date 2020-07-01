@@ -75,22 +75,28 @@ class PipelineExecutor:
         self.workers = workers
         self.kwargs = kwargs
         self.yaml = read_yaml_file(yaml_file)
-        self.dry_run_database_prefix = None
+        self.clone_database_prefix = None
         if dry_run:
-            self.dry_run_database_prefix = "CLONE_" + str(random.sample(range(1, 1000000000), 1)[0])
+            self.clone_database_prefix = "CLONE_" + str(random.sample(range(1, 1000000000), 1)[0])
             add_database_id_prefix(
                 obj=self.yaml,
-                prefix=self.dry_run_database_prefix,
+                prefix=self.clone_database_prefix,
                 kwargs=self.kwargs)
-        logging_config()
+        
 
     def select_object(self, obj_name):
-        if obj_name == 'query_executor':
-            return self.db.query_exec
+        # if obj_name == 'query_executor':
+        #     return self.db.query_exec
         if obj_name == 'initiate_database_schema':
             return self.db.initiate_database_schema
         if obj_name == 'dop_database':
             return self.db.delete_database
+        if obj_name == 'load_table':
+            return self.db.load_table
+        if obj_name == 'create_database':
+            return self.db.create_database
+        if obj_name == 'create_schema':
+            return self.db.create_schema
         else:
             raise Exception("No matching object")
 
@@ -99,6 +105,9 @@ class PipelineExecutor:
             for key_, value_ in task.items():
                 if key_ == 'object':
                     task.update({key_: self.select_object(value_)})
+            
+            task['args'].update(self.kwargs)
+            task['args'].update({'clone_database_prefix' : self.clone_database_prefix})
 
     def run_batch(self, batch):
         tasks = batch.get('tasks', '')
@@ -119,20 +128,24 @@ class PipelineExecutor:
             apply_kwargs(batch, self.kwargs)  ## resolve environment variable passed as kwargs
             self.run_batch(batch)
     
-
-    def clone_prod(self, with_data=False):
+    def clone_clean(self):
         dabatase_list = self.yaml.get('databases', '')
         for database in dabatase_list:
-            clone_database = str(self.dry_run_database_prefix) + "_" + database
-            self.db.query_exec(
-                query= """ CREATE DATABASE {clone} CLONE {db} """,
-                clone=clone_database,
-                db=database
+            clone_database = str(self.clone_database_prefix) + "_" + database
+            if "CLONE_" in clone_database:
+                self.db.delete_database(clone_database)
+
+    def clone_prod(self, with_data=True):
+        dabatase_list = self.yaml.get('databases', '')
+        for database in dabatase_list:
+            clone_database = str(self.clone_database_prefix) + "_" + database
+            self.db.clone_database(
+                database_id=database,
+                clone_prefix=self.clone_database_prefix
             )
             tables=self.db.list_tables(database_id=clone_database)
             if not with_data:
                 for table in tables:
-                    self.db.use_database(database_id=clone_database)
                     self.db.query_exec(
                         query=""" DELETE FROM {table} """, 
                         table=table

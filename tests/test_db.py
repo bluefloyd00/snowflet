@@ -20,11 +20,7 @@ class DBLoadTable(unittest.TestCase):
         
     def tearDown(self):
         """ Test """
-        try: 
-            self.db.validate_connection() 
-        except:
-            self.db = db()
-
+        self.db.delete_schema(database_id="test_load_table", schema_id="test")
         self.db.delete_database(database_id="test_load_table")
         self.db.close()
        

@@ -1,0 +1,34 @@
+desc:  test_db_dry_run1 is just referenced in this pipeline  
+databases: [test_db_dry_run1, test_db_dry_run2]
+batches:  
+- desc: set up environment, test_db_dry_run1.test_schema_dry_run1.table1 is created in the test setup
+  tasks:       
+  - desc: create database run_batch
+    object: initiate_database_schema 
+    args:
+      database_id: test_db_dry_run2
+      schema_id: test_schema_dry_run2
+- desc: create tables
+  tasks:     
+  - desc: create table1
+    object: load_table
+    args:
+      database_id: test_db_dry_run2 
+      schema_id: test_schema_dry_run2 
+      table_id: table2 
+      truncate: True
+      query: SELECT 1 AS COL1, 'B' as COL3
+- desc: create combined table (table1, test_db_dry_run2.test_schema_dry_run2.table2)
+  tasks:     
+  - desc: create table1
+    object: load_table
+    args:
+      database_id: test_db_dry_run2 
+      schema_id: test_schema_dry_run2 
+      table_id: table3 
+      truncate: True
+      query: SELECT a.COL1, a.COL2, b.COL3 FROM test_db_dry_run1.test_schema_dry_run1.table1 a left join test_db_dry_run2.test_schema_dry_run2.table2 b on a.col1=b.col1
+    
+  
+
+    
