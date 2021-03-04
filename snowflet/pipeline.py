@@ -3,7 +3,6 @@ import time
 import random
 import logging
 import threading
-import numpy as np
 import concurrent.futures
 from snowflet.lib import apply_kwargs
 from snowflet.lib import default_user

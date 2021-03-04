@@ -1,5 +1,4 @@
 snowflake-sqlalchemy
-numpy
 pandas
 nltk
 PyYAML
