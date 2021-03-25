@@ -27,7 +27,7 @@ setuptools.setup(
     packages=setuptools.find_packages(),
     install_requires=[
         'wheel',
-        'PyYAML==5.3.1',
+        'PyYAML==5.4',
         'snowflake-sqlalchemy',
         'numpy',
         'pandas',
